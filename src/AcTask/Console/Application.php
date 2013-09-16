@@ -3,7 +3,6 @@
 namespace AcTask\Console;
 
 use Symfony\Component\Console\Application as BaseApplication;
-use AcTask\Command\AboutCommand;
 use AcTask;
 
 /**
