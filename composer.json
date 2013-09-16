@@ -1,0 +1,20 @@
+{
+  "repositories": [
+    {
+        "type": "vcs",
+        "url": "https://github.com/kostajh/ActiveCollabApi"
+    }
+  ],
+  "require": {
+      "symfony/console": "2.*",
+      "symfony/yaml": "2.*",
+      "symfony/filesystem": "2.*",
+      "symfony/process": "2.*",
+      "seld/jsonlint": "dev-master",
+      "kostajh/ActiveCollabApi": "dev-rewrite"
+  },
+  "autoload": {
+      "psr-0": { "AcTask": "src/" }
+  },
+  "bin": ["ac-task"]
+}

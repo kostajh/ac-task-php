@@ -1,0 +1,21 @@
+#!/usr/bin/env php
+<?php
+
+/*
+ * This file is part of the AcTask Console utility.
+ */
+
+/**
+ * @author Kosta Harlan <kosta@embros.org>
+ */
+
+(@include_once __DIR__ . '/../vendor/autoload.php') || @include_once __DIR__ . '/../../../autoload.php';
+
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Command;
+use AcTask\Command\AboutCommand;
+use AcTask\Command\TimesheetCommand;
+
+$app = new Application();
+$app->add(new TimesheetCommand);
+$app->run();

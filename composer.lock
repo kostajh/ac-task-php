@@ -1,0 +1,309 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "408ed791ea8ab2d47b09883e705de90e",
+    "packages": [
+        {
+            "name": "kostajh/ActiveCollabApi",
+            "version": "dev-rewrite",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/kostajh/ActiveCollabApi.git",
+                "reference": "559e90827e4a643b74bf98afc5eb8b47fccad73c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/kostajh/ActiveCollabApi/zipball/559e90827e4a643b74bf98afc5eb8b47fccad73c",
+                "reference": "559e90827e4a643b74bf98afc5eb8b47fccad73c",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "ActiveCollabApi": "src"
+                }
+            },
+            "license": [
+                "GPL"
+            ],
+            "authors": [
+                {
+                    "name": "Kosta Harlan",
+                    "email": "kostajh@gmail.com",
+                    "homepage": "http://kostaharlan.net",
+                    "role": "Developer"
+                }
+            ],
+            "description": "PHP wrappers for interacting with activeCollab API.",
+            "homepage": "http://github.com/kostajh/ActiveCollabApi",
+            "keywords": [
+                "activeCollab"
+            ],
+            "support": {
+                "source": "https://github.com/kostajh/ActiveCollabApi/tree/rewrite",
+                "issues": "https://github.com/kostajh/ActiveCollabApi/issues"
+            },
+            "time": "2012-11-10 19:40:29"
+        },
+        {
+            "name": "seld/jsonlint",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Seldaek/jsonlint.git",
+                "reference": "7ae109906d1b382a6bc3cf12b01c9c885a703f22"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/7ae109906d1b382a6bc3cf12b01c9c885a703f22",
+                "reference": "7ae109906d1b382a6bc3cf12b01c9c885a703f22",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "bin": [
+                "bin/jsonlint"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Seld\\JsonLint": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Jordi Boggiano",
+                    "email": "j.boggiano@seld.be",
+                    "homepage": "http://seld.be",
+                    "role": "Developer"
+                }
+            ],
+            "description": "JSON Linter",
+            "keywords": [
+                "json",
+                "linter",
+                "parser",
+                "validator"
+            ],
+            "time": "2013-02-14 15:45:55"
+        },
+        {
+            "name": "symfony/console",
+            "version": "v2.3.4",
+            "target-dir": "Symfony/Component/Console",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Console.git",
+                "reference": "db78f8ff7fc9e28d25ff9a0bf6ddf9f0e35fbbe3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Console/zipball/db78f8ff7fc9e28d25ff9a0bf6ddf9f0e35fbbe3",
+                "reference": "db78f8ff7fc9e28d25ff9a0bf6ddf9f0e35fbbe3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "symfony/event-dispatcher": "~2.1"
+            },
+            "suggest": {
+                "symfony/event-dispatcher": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Console\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Console Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-08-17 16:34:49"
+        },
+        {
+            "name": "symfony/filesystem",
+            "version": "v2.3.4",
+            "target-dir": "Symfony/Component/Filesystem",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Filesystem.git",
+                "reference": "87acbbef6d35ba649f96f09cc572c45119b360c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Filesystem/zipball/87acbbef6d35ba649f96f09cc572c45119b360c3",
+                "reference": "87acbbef6d35ba649f96f09cc572c45119b360c3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Filesystem\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Filesystem Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-07-21 12:12:18"
+        },
+        {
+            "name": "symfony/process",
+            "version": "v2.3.4",
+            "target-dir": "Symfony/Component/Process",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Process.git",
+                "reference": "1e91553e1cedd0b8fb1da6ea4f89b02e21713d5b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/1e91553e1cedd0b8fb1da6ea4f89b02e21713d5b",
+                "reference": "1e91553e1cedd0b8fb1da6ea4f89b02e21713d5b",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Process\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Process Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-08-22 06:42:25"
+        },
+        {
+            "name": "symfony/yaml",
+            "version": "v2.3.4",
+            "target-dir": "Symfony/Component/Yaml",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/Yaml.git",
+                "reference": "5a279f1b5f5e1045a6c432354d9ea727ff3a9847"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/5a279f1b5f5e1045a6c432354d9ea727ff3a9847",
+                "reference": "5a279f1b5f5e1045a6c432354d9ea727ff3a9847",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Symfony\\Component\\Yaml\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "http://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony Yaml Component",
+            "homepage": "http://symfony.com",
+            "time": "2013-08-24 15:26:22"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "seld/jsonlint": 20,
+        "kostajh/activecollabapi": 20
+    },
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
+}
