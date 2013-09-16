@@ -26,6 +26,11 @@ class TimesheetCommand extends Command
         $process->run();
         $tasks = json_decode($process->getOutput(), TRUE);
         $projects = array();
+        $output->writeln('Searching through tasks...');
+        $progress = $this->getHelperSet()->get('progress');
+        $progress->setBarCharacter('<comment>=</comment>');
+        $progress->start($output, count($tasks));
+
         foreach ($tasks as $task) {
           $task_info = new Process('task rc.verbose=nothing ' . $task['id'] . ' info');
           $task_info->run();
@@ -44,7 +49,9 @@ class TimesheetCommand extends Command
             }
             $projects[$task['project']][] = array('active' => $task['start'], 'id' => $task['id'], 'time' => $time, 'task' => $task['description'], 'ac' => $task['ac']);
           }
+          $progress->advance();
         }
+        $progress->finish();
 
         foreach ($projects as $project => $tasks) {
             $output->writeln('<info>' . $project . '</info>');
