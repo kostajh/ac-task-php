@@ -7,8 +7,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 
-use Seld\JsonLint\JsonParser;
-
 class TimesheetCommand extends Command
 {
     protected function configure()
@@ -64,8 +62,7 @@ class TimesheetCommand extends Command
                 if ($task['active']) {
                     $format_start = '<question>';
                     $format_end = '</question>';
-                }
-                else {
+                } else {
                     $format_start = '<info>';
                     $format_end = '</info>';
                 }
