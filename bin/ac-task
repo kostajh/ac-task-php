@@ -14,9 +14,11 @@
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command;
 use AcTask\Command\StartCommand;
+use AcTask\Command\MakeCommand;
 use AcTask\Command\TimesheetCommand;
 
 $app = new Application();
 $app->add(new TimesheetCommand);
 $app->add(new StartCommand);
+$app->add(new MakeCommand);
 $app->run();
