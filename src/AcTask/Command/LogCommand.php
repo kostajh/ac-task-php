@@ -8,7 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use AcTask\AcTask;
-use TijsVerkoyen\ActiveCollab\ActiveCollab;
 
 class LogCommand extends Command
 {
@@ -88,8 +87,7 @@ class LogCommand extends Command
         $result = $ac->callAPI($params, 'POST');
         if (isset($result['permalink'])) {
             $output->writeln('<info>Successfully logged time. See the link here ' . $result['permalink'] . '</info>');
-        }
-        else {
+        } else {
             return $output->writeln('<error>An error occurred!</error>');
         }
         // Complete the task.
@@ -98,13 +96,15 @@ class LogCommand extends Command
         $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
     }
 
-    protected function getConfirmation() {
+    protected function getConfirmation()
+    {
         $this->output->writeln('<info>Summary:</info>');
         $time_types = $this->getValidTypes();
         $this->output->writeln(sprintf('<info>- Time type: %s</info>', $time_types[$this->time_type]));
         $this->output->writeln(sprintf('<info>- Billable: %s</info>', $this->billable));
         $this->output->writeln(sprintf('<info>- Message: %s</info>', $this->message));
         $this->output->writeln(sprintf('<info>- Time: %s', $this->time));
+
         return $this->dialog->askConfirmation(
             $this->output,
             'Proceed with logging time? (y/n) ',
@@ -112,9 +112,11 @@ class LogCommand extends Command
         );
     }
 
-    protected function getTime() {
+    protected function getTime()
+    {
         $time = $this->AcTask->taskTimeInfo($this->task_id);
         $this->output->writeln(sprintf('<info>Time logged in Taskwarrior: %s</info>', $time));
+
         return $this->dialog->ask(
             $this->output,
             'Time to log: ',
@@ -149,7 +151,8 @@ class LogCommand extends Command
         );
     }
 
-    protected function getValidTypes() {
+    protected function getValidTypes()
+    {
         return array(
             '1' => 'General (Legacy)',
             '2' => 'Design Concepts',

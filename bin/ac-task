@@ -17,10 +17,12 @@ use AcTask\Command\StartCommand;
 use AcTask\Command\MakeCommand;
 use AcTask\Command\TimesheetCommand;
 use AcTask\Command\LogCommand;
+use AcTask\Command\PullCommand;
 
 $app = new Application();
 $app->add(new TimesheetCommand);
 $app->add(new StartCommand);
 $app->add(new MakeCommand);
 $app->add(new LogCommand);
+$app->add(new PullCommand);
 $app->run();

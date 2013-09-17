@@ -8,7 +8,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use AcTask\AcTask;
-use TijsVerkoyen\ActiveCollab\ActiveCollab;
 
 class MakeCommand extends Command
 {

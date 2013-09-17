@@ -58,9 +58,9 @@ class StartCommand extends Command
                         false
                     )) {
                     $output->writeln('Did not start task!');
+
                     return;
-                }
-                else {
+                } else {
                     $process = new Process(sprintf('task %d stop', $task['id']));
                     $process->run();
                     $output->writeln('<comment>' . $process->getOutput() . '</comment>');

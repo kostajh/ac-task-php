@@ -160,18 +160,21 @@ class AcTask
     $this->ActiveCollab = new ActiveCollabApi();
     $this->ActiveCollab->setKey($file['ac_token']);
     $this->ActiveCollab->setAPIUrl($file['ac_url']);
+
     return true;
   }
 
   /**
    * Get task.
    */
-  public function getTask($task_id) {
+  public function getTask($task_id)
+  {
     // @todo This should be in libtask-php
     $process = new Process(sprintf('task %d export', $task_id));
     $process->run();
     try {
       $json = json_decode($process->getOutput(), TRUE);
+
       return array_shift($json);
     } catch (Exception $e) {
       print_r($e->getMessage());
@@ -185,6 +188,7 @@ class AcTask
     $task_info_output = $task_info->getOutput();
     if (strpos($task_info_output, 'Total active time')) {
       $task_info_output_components = explode(' ', $task_info_output);
+
       return trim(end($task_info_output_components));
       if (!isset($task['project'])) {
           $task['project'] = 'misc';
@@ -196,8 +200,8 @@ class AcTask
           $task['start'] = '';
       }
     }
-    return null;
 
+    return null;
 
   }
 
