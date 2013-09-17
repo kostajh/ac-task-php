@@ -181,6 +181,35 @@ class AcTask
     }
   }
 
+  /**
+   * Get all tasks.
+   */
+  public function getTasks()
+  {
+    $process = new Process('task status:pending export');
+    $process->run();
+    try {
+      return json_decode($process->getOutput(), TRUE);
+    } catch (Exception $e) {
+      print_r($e->getMessage());
+    }
+  }
+
+  /**
+   * Returns array of favorite projects from AC.
+   */
+  public function getFavoriteProjects()
+  {
+    $projects = $this->ActiveCollab->getProjects();
+    $favorites = array();
+    foreach ($projects as $project) {
+      if ($project['is_favorite'] == 1 && $project['is_completed'] == 0) {
+        $favorites[] = $project;
+      }
+    }
+    return $favorites;
+  }
+
   public function taskTimeInfo($task_id)
   {
     $task_info = new Process('task rc.verbose=nothing ' . $task_id . ' info');
@@ -240,6 +269,13 @@ class AcTask
     }
 
     return $users;
+  }
+
+  public function getProjectSlug($permalink)
+  {
+    $parse = parse_url($permalink);
+    $parts = explode('/', ltrim($parse['path'], '/'));
+    return $parts[1];
   }
 
   /**
