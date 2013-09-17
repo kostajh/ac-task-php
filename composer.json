@@ -10,8 +10,7 @@
       "symfony/yaml": "2.*",
       "symfony/filesystem": "2.*",
       "symfony/process": "2.*",
-      "seld/jsonlint": "dev-master",
-      "tijsverkoyen/activecollab": "dev-master"
+      "kostajh/ActiveCollabApi": "dev-rewrite"
   },
   "autoload": {
       "psr-0": { "AcTask": "src/" }

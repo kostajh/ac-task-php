@@ -6,9 +6,17 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
+use AcTask\AcTask;
 
 class TimesheetCommand extends Command
 {
+
+    public function __construct(AcTask $AcTask = null)
+    {
+        $this->AcTask = $AcTask ?: new AcTask();
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -30,24 +38,17 @@ class TimesheetCommand extends Command
         $progress->start($output, count($tasks));
 
         foreach ($tasks as $task) {
-          $task_info = new Process('task rc.verbose=nothing ' . $task['id'] . ' info');
-          $task_info->run();
-          $task_info_output = $task_info->getOutput();
-          if (strpos($task_info_output, 'Total active time')) {
-            $task_info_output_components = explode(' ', $task_info_output);
-            $time = trim(end($task_info_output_components));
-            if (!isset($task['project'])) {
-                $task['project'] = 'misc';
+            $task_time = $this->AcTask->taskTimeInfo($task['id']);
+            if ($task_time) {
+                $projects[$task['project']][] = array(
+                    'active' => $task['start'],
+                    'id' => $task['id'],
+                    'time' => $task_time,
+                    'task' => $task['description'],
+                    'ac' => $task['ac']
+                  );
             }
-            if (!isset($task['ac'])) {
-                $task['ac'] = '';
-            }
-            if (!isset($task['start'])) {
-                $task['start'] = '';
-            }
-            $projects[$task['project']][] = array('active' => $task['start'], 'id' => $task['id'], 'time' => $time, 'task' => $task['description'], 'ac' => $task['ac']);
-          }
-          $progress->advance();
+            $progress->advance();
         }
         $progress->finish();
 

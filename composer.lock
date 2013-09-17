@@ -3,54 +3,49 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "3ebe2c070a4b1fb1004ef5a41cd2d828",
+    "hash": "a0e8dfef3ec6cea8b32f6bdf013cdeb3",
     "packages": [
         {
-            "name": "seld/jsonlint",
-            "version": "dev-master",
+            "name": "kostajh/ActiveCollabApi",
+            "version": "dev-rewrite",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Seldaek/jsonlint.git",
-                "reference": "7ae109906d1b382a6bc3cf12b01c9c885a703f22"
+                "url": "https://github.com/kostajh/ActiveCollabApi.git",
+                "reference": "02ab8e03cccc86e575e2330ab4dc02e60a7c4fcd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Seldaek/jsonlint/zipball/7ae109906d1b382a6bc3cf12b01c9c885a703f22",
-                "reference": "7ae109906d1b382a6bc3cf12b01c9c885a703f22",
+                "url": "https://api.github.com/repos/kostajh/ActiveCollabApi/zipball/02ab8e03cccc86e575e2330ab4dc02e60a7c4fcd",
+                "reference": "02ab8e03cccc86e575e2330ab4dc02e60a7c4fcd",
                 "shasum": ""
             },
-            "require": {
-                "php": ">=5.3.0"
-            },
-            "bin": [
-                "bin/jsonlint"
-            ],
             "type": "library",
             "autoload": {
                 "psr-0": {
-                    "Seld\\JsonLint": "src/"
+                    "ActiveCollabApi": "src"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
-                "MIT"
+                "GPL"
             ],
             "authors": [
                 {
-                    "name": "Jordi Boggiano",
-                    "email": "j.boggiano@seld.be",
-                    "homepage": "http://seld.be",
+                    "name": "Kosta Harlan",
+                    "email": "kostajh@gmail.com",
+                    "homepage": "http://kostaharlan.net",
                     "role": "Developer"
                 }
             ],
-            "description": "JSON Linter",
+            "description": "PHP wrappers for interacting with activeCollab API.",
+            "homepage": "http://github.com/kostajh/ActiveCollabApi",
             "keywords": [
-                "json",
-                "linter",
-                "parser",
-                "validator"
+                "activeCollab"
             ],
-            "time": "2013-02-14 15:45:55"
+            "support": {
+                "source": "https://github.com/kostajh/ActiveCollabApi/tree/rewrite",
+                "issues": "https://github.com/kostajh/ActiveCollabApi/issues"
+            },
+            "time": "2013-09-17 12:58:22"
         },
         {
             "name": "symfony/console",
@@ -245,46 +240,6 @@
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
             "time": "2013-08-24 15:26:22"
-        },
-        {
-            "name": "tijsverkoyen/activecollab",
-            "version": "dev-master",
-            "target-dir": "TijsVerkoyen/ActiveCollab",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/tijsverkoyen/Active-Collab.git",
-                "reference": "c9b99a7992851202e21abe5d5d3f09eaa7ac1929"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/tijsverkoyen/Active-Collab/zipball/c9b99a7992851202e21abe5d5d3f09eaa7ac1929",
-                "reference": "c9b99a7992851202e21abe5d5d3f09eaa7ac1929",
-                "shasum": ""
-            },
-            "require": {
-                "ext-curl": "*",
-                "php": ">=5.2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "TijsVerkoyen\\ActiveCollab": ""
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD"
-            ],
-            "authors": [
-                {
-                    "name": "Tijs Verkoyen",
-                    "email": "php-activecollab@verkoyen.eu",
-                    "role": "Developer"
-                }
-            ],
-            "description": "PHP ActiveCollab is a (wrapper)class to communicate with your Active Collab instance.",
-            "homepage": "https://github.com/tijsverkoyen/Active-Collab",
-            "time": "2013-01-04 09:48:44"
         }
     ],
     "packages-dev": [
@@ -295,8 +250,7 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "seld/jsonlint": 20,
-        "tijsverkoyen/activecollab": 20
+        "kostajh/activecollabapi": 20
     },
     "platform": [
 

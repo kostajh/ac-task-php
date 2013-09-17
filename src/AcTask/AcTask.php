@@ -7,11 +7,12 @@
 
 namespace AcTask;
 
-use TijsVerkoyen\ActiveCollab\ActiveCollab;
+use ActiveCollabApi\ActiveCollabApi;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Dumper;
+use Symfony\Component\Process\Process;
 
 /**
  * Provides methods for interacting with the ActiveCollabApi.
@@ -20,6 +21,8 @@ class AcTask
 {
 
     const VERSION = '0.1';
+
+  public $userId;
 
   /**
    * Constructor
@@ -147,13 +150,55 @@ class AcTask
         return false;
     }
 
+    $this->userId = $file['user_id'];
+
     // Create cache directory.
     if (!$fs->exists(__DIR__ . '/app/cache')) {
       $fs->mkdir(__DIR__ . '/app/cache');
     }
 
-    $this->ActiveCollab = new ActiveCollab($file['ac_token'], $file['ac_url']);
+    $this->ActiveCollab = new ActiveCollabApi();
+    $this->ActiveCollab->setKey($file['ac_token']);
+    $this->ActiveCollab->setAPIUrl($file['ac_url']);
     return true;
+  }
+
+  /**
+   * Get task.
+   */
+  public function getTask($task_id) {
+    // @todo This should be in libtask-php
+    $process = new Process(sprintf('task %d export', $task_id));
+    $process->run();
+    try {
+      $json = json_decode($process->getOutput(), TRUE);
+      return array_shift($json);
+    } catch (Exception $e) {
+      print_r($e->getMessage());
+    }
+  }
+
+  public function taskTimeInfo($task_id)
+  {
+    $task_info = new Process('task rc.verbose=nothing ' . $task_id . ' info');
+    $task_info->run();
+    $task_info_output = $task_info->getOutput();
+    if (strpos($task_info_output, 'Total active time')) {
+      $task_info_output_components = explode(' ', $task_info_output);
+      return trim(end($task_info_output_components));
+      if (!isset($task['project'])) {
+          $task['project'] = 'misc';
+      }
+      if (!isset($task['ac'])) {
+          $task['ac'] = '';
+      }
+      if (!isset($task['start'])) {
+          $task['start'] = '';
+      }
+    }
+    return null;
+
+
   }
 
   /**
