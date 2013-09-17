@@ -76,7 +76,7 @@ class LogCommand extends Command
         $params = array(
             'time_record[value]' => $this->time,
             'time_record[user_id]' => $this->AcTask->userId,
-            'time_record[record_date]' => time(),
+            'time_record[record_date]' => date('n/j/Y'),
             'time_record[job_type_id]' => $this->time_type,
             'time_record[billable_status]' => $this->billable,
             'time_record[summary]' => $this->message,
