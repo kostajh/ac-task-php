@@ -7,9 +7,18 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
+use AcTask\AcTask;
+use TijsVerkoyen\ActiveCollab\ActiveCollab;
 
 class MakeCommand extends Command
 {
+
+    public function __construct(AcTask $AcTask = null)
+    {
+        $this->AcTask = $AcTask ?: new AcTask();
+        parent::__construct();
+    }
+
     protected function configure()
     {
         $this
@@ -26,12 +35,22 @@ class MakeCommand extends Command
     {
         // @todo Move this into libtask-php.
         $url = $input->getArgument('url');
-        print $url;
         $parse = parse_url($url);
         $parts = explode('/', ltrim($parse['path'], '/'));
         $project = $parts[1];
         $task_id = $parts[3];
-        // @todo Get description
-        // @todo Add task
+        $dialog = $this->getHelperSet()->get('dialog');
+        $description = $dialog->ask(
+            $output,
+            'Please enter a description: ',
+            null
+        );
+        if (!$description) {
+            return false;
+        }
+        $process = new Process(sprintf('task add %s logged:false ac:%d project:%s url:%s', $description, $task_id, $project, $url));
+        $process->run();
+        $result = $process->getOutput();
+        $output->writeln('<info>' . $result . '</info>');
     }
 }

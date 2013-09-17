@@ -11,7 +11,7 @@
       "symfony/filesystem": "2.*",
       "symfony/process": "2.*",
       "seld/jsonlint": "dev-master",
-      "kostajh/ActiveCollabApi": "dev-rewrite"
+      "tijsverkoyen/activecollab": "dev-master"
   },
   "autoload": {
       "psr-0": { "AcTask": "src/" }

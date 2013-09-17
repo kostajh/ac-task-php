@@ -7,7 +7,7 @@
 
 namespace AcTask;
 
-use ActiveCollabApi\ActiveCollabApi;
+use TijsVerkoyen\ActiveCollab\ActiveCollab;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -119,7 +119,7 @@ class AcTask
   {
     $currentUser = get_current_user();
     $fs = new Filesystem();
-    $configFile = '/Users/' . $currentUser . '/.active_collab';
+    $configFile = '/home/' . $currentUser . '/.active_collab';
 
     if (!$fs->exists($configFile)) {
       print "Please create a ~/.active_collab file.\n";
@@ -131,21 +131,15 @@ class AcTask
 
     try {
         $file = $yaml->parse(file_get_contents($configFile));
+
         if (!isset($file['ac_url']) || !$file['ac_url']) {
-          print "Please specify a value for ac_url in your config file!\n";
-        } else {
-          parent::setAPIUrl($file['ac_url']);
+          return print "Please specify a value for ac_url in your config file!\n";
         }
         if (!isset($file['ac_token']) || !$file['ac_token']) {
-          print "Please specify a value for ac_token in your config file!\n";
-        } else {
-          parent::setKey($file['ac_token']);
+          return "Please specify a value for ac_token in your config file!\n";
         }
         if (!isset($file['ac_url']) || !isset($file['ac_token']) || !$file['ac_url'] || !$file['ac_token']) {
           return false;
-        }
-        if (isset($file['projects'])) {
-          $this->projects = serialize($file['projects']);
         }
     } catch (ParseException $e) {
         printf("Unable to parse the YAML string: %s", $e->getMessage());
@@ -158,6 +152,7 @@ class AcTask
       $fs->mkdir(__DIR__ . '/app/cache');
     }
 
+    $this->ActiveCollab = new ActiveCollab($file['ac_token'], $file['ac_url']);
     return true;
   }
 
