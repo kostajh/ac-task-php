@@ -45,12 +45,13 @@ class TimesheetCommand extends Command
                     'id' => $task['id'],
                     'time' => $task_time,
                     'task' => $task['description'],
-                    'ac' => $task['ac']
+                    'ac' => isset($task['ac']) ? $task['ac'] : null,
                   );
             }
             $progress->advance();
         }
         $progress->finish();
+        $output->writeln('');
 
         foreach ($projects as $project => $tasks) {
             $output->writeln('<info>' . $project . '</info>');

@@ -11,12 +11,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kostajh/ActiveCollabApi.git",
-                "reference": "02ab8e03cccc86e575e2330ab4dc02e60a7c4fcd"
+                "reference": "13d0147cb215e738dca6e63ff72f93ae7caebe38"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kostajh/ActiveCollabApi/zipball/02ab8e03cccc86e575e2330ab4dc02e60a7c4fcd",
-                "reference": "02ab8e03cccc86e575e2330ab4dc02e60a7c4fcd",
+                "url": "https://api.github.com/repos/kostajh/ActiveCollabApi/zipball/13d0147cb215e738dca6e63ff72f93ae7caebe38",
+                "reference": "13d0147cb215e738dca6e63ff72f93ae7caebe38",
                 "shasum": ""
             },
             "type": "library",
@@ -45,7 +45,7 @@
                 "source": "https://github.com/kostajh/ActiveCollabApi/tree/rewrite",
                 "issues": "https://github.com/kostajh/ActiveCollabApi/issues"
             },
-            "time": "2013-09-17 12:58:22"
+            "time": "2013-09-17 13:33:27"
         },
         {
             "name": "symfony/console",
