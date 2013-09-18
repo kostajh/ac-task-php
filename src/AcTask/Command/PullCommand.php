@@ -147,12 +147,13 @@ class PullCommand extends Command
         // Add new issues to BW database.
         if (count($tasks_to_add)) {
             foreach ($tasks_to_add as $task) {
-                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "%s" logged:false due:% project:%s bwissueurl:%s',
+                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "%s" logged:"false" due:"%s" project:%s status:pending bwissueurl:"%s"',
                     $task['description'],
                     $task['due'],
                     $task['project_slug'],
                     $task['permalink']
                 );
+                $output->writeln($command);
                 $process = new Process($command);
                 $process->run();
                 $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
@@ -181,6 +182,7 @@ class PullCommand extends Command
 
         // Delete completed tasks from BW db.
         $command = 'task rc:/home/kosta/.bugwarrior_taskrc rc.verbose=nothing rc.confirmation=no rc.bulk=100 status:completed delete';
+        $output->writeln($output);
         $process = new Process($command);
         $process->run();
         $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
