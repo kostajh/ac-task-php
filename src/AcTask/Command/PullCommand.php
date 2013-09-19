@@ -69,7 +69,7 @@ class PullCommand extends Command
         // $projects = array_slice($projects, 3, 6);
         $assigned_tasks = array();
         foreach ($projects as $project) {
-            $output->writeln(sprintf('<info>Analyzing (sub)tasks for %s...</info>', $project['name']));
+            $output->writeln(sprintf('<info>Analyzing tasks and subtasks for %s...</info>', $project['name']));
             $tasks = $this->AcTask->ActiveCollab->getTasksForProject($project['id']);
             if (count($tasks)) {
                 $task_progress = $this->getHelperSet()->get('progress');
@@ -128,10 +128,10 @@ class PullCommand extends Command
         // Find tasks to add/update
         foreach ($assigned_tasks as $permalink => $task) {
             if (!isset($bw_managed_tasks[$permalink])) {
-                $tasks_to_add[] = $task;
+                $tasks_to_add[$permalink] = $task;
             }
             else {
-                $tasks_to_update[] = $task;
+                $tasks_to_update[$permalink] = $task;
             }
         }
         $output->writeln(sprintf('<info>Found %d new tasks.</info>', count($tasks_to_add)));
@@ -139,7 +139,7 @@ class PullCommand extends Command
         // Tasks to delete
         foreach ($bw_managed_tasks as $permalink => $task_id) {
             if (!isset($assigned_tasks[$permalink])) {
-                $tasks_to_complete[] = $task_id;
+                $tasks_to_complete[$permalink] = $task_id;
             }
         }
         $output->writeln(sprintf('<info>Found %d tasks to complete.</info>', count($tasks_to_complete)));
@@ -147,12 +147,15 @@ class PullCommand extends Command
         // Add new issues to BW database.
         if (count($tasks_to_add)) {
             foreach ($tasks_to_add as $task) {
-                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "%s" logged:"false" due:"%s" project:%s status:pending bwissueurl:"%s"',
+                $task_id = ($task['type'] == 'subtask') ? $this->AcTask->getAcTaskId($task['parent_url']) : $this->AcTask->getAcTaskId($task['permalink']);
+                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "%s" logged:"false" due:"%s" project:%s status:pending bwissueurl:"%s" ac:%d',
                     $task['description'],
-                    $task['due'],
+                    strtotime($task['due']),
                     $task['project_slug'],
-                    $task['permalink']
+                    $task['permalink'],
+                    $task['task_id']
                 );
+                $output->writeln('Add');
                 $output->writeln($command);
                 $process = new Process($command);
                 $process->run();
@@ -161,11 +164,32 @@ class PullCommand extends Command
             }
         }
         // Update existing issues.
-        // @todo
+        if (count($tasks_to_update)) {
+            foreach ($tasks_to_update as $bw_issue_url => $task) {
+                // Get task ID to modify based on bwissueurl.
+                $tw_task = array_shift($this->AcTask->getTaskByConditions(array('bwissueurl' => $bw_issue_url)));
+                if ($tw_task) {
+                    $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d mod "%s" due:"%s"',
+                        $tw_task['id'],
+                        $task['description'],
+                        strtotime($task['due']));
+                    $output->writeln('Update');
+                    $output->writeln($command);
+                    $process = new Process($command);
+                    $process->run();
+                    $output->writeln($process->getOutput());
+                }
+                else {
+                    $output->writeln(sprintf('<error>The permalink %s should be linked to a task...</error>', $bw_issue_url));
+                }
+            }
+        }
 
         // Complete issues.
         if (count($tasks_to_complete)) {
             foreach ($tasks_to_complete as $task) {
+                $output->writeln('Completed');
+                $output->writeln($command);
                 $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d done', $task['id']);
                 $process = new Process($command);
                 $process->run();
@@ -186,6 +210,7 @@ class PullCommand extends Command
         $process = new Process($command);
         $process->run();
         $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
+        print_r($process->getOutput());
     }
 
     protected function notifySend($summary, $body)

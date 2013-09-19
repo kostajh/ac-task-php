@@ -182,6 +182,29 @@ class AcTask
   }
 
   /**
+   * Returns one or more tasks that match a condition.
+   */
+  public function getTaskByConditions(array $conditions, $status = 'pending')
+  {
+    $formatted_conditions = array();
+    // Add space to the end of each value.
+    $condition_string = '';
+    foreach($conditions as $key => $value) {
+      $condition_string .= $key . ':';
+      if (!is_int($value)) {
+        $condition_string .= '"' . $value . '" ';
+      }
+      else {
+        $condition_string .= $value . ' ';
+      }
+    }
+    $condition_string .= 'status:' . $status;
+    $process = new Process(sprintf('task %s export', $condition_string));
+    $process->run();
+    return json_decode($process->getOutput(), TRUE);
+  }
+
+  /**
    * Get all tasks.
    */
   public function getTasks()
@@ -276,6 +299,13 @@ class AcTask
     $parse = parse_url($permalink);
     $parts = explode('/', ltrim($parse['path'], '/'));
     return $parts[1];
+  }
+
+  public function getAcTaskId($permalink)
+  {
+    $parse = parse_url($permalink);
+    $parts = explode('/', ltrim($parse['path'], '/'));
+    return $parts[3];
   }
 
   /**
