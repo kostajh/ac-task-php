@@ -26,7 +26,7 @@ class StartCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $taskwarrior = new Taskwarrior();
-        $tasks = $taskwarrior->loadTasks(null, array('status' => 'pending'));
+        $tasks = $taskwarrior->loadTasks('+work', array('status' => 'pending'));
         $task_names = array();
         foreach ($tasks as $task) {
             $task_names[$task->getId()] = $task->getDescription();
