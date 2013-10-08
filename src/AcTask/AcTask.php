@@ -167,60 +167,6 @@ class AcTask
   }
 
   /**
-   * Get task.
-   */
-  public function getTask($task_id)
-  {
-    // @todo This should be in libtask-php
-    $process = new Process(sprintf('task %d export', $task_id));
-    $process->run();
-    try {
-      $json = json_decode($process->getOutput(), TRUE);
-
-      return array_shift($json);
-    } catch (Exception $e) {
-      print_r($e->getMessage());
-    }
-  }
-
-  /**
-   * Returns one or more tasks that match a condition.
-   */
-  public function getTaskByConditions(array $conditions, $status = 'pending')
-  {
-    $formatted_conditions = array();
-    // Add space to the end of each value.
-    $condition_string = '';
-    foreach($conditions as $key => $value) {
-      $condition_string .= $key . ':';
-      if (!is_int($value)) {
-        $condition_string .= '"' . $value . '" ';
-      }
-      else {
-        $condition_string .= $value . ' ';
-      }
-    }
-    $condition_string .= 'status:' . $status;
-    $process = new Process(sprintf('task %s export', $condition_string));
-    $process->run();
-    return json_decode($process->getOutput(), TRUE);
-  }
-
-  /**
-   * Get all tasks.
-   */
-  public function getTasks()
-  {
-    $process = new Process('task status:pending export');
-    $process->run();
-    try {
-      return json_decode($process->getOutput(), TRUE);
-    } catch (Exception $e) {
-      print_r($e->getMessage());
-    }
-  }
-
-  /**
    * Returns array of favorite projects from AC.
    */
   public function getFavoriteProjects()
@@ -233,30 +179,6 @@ class AcTask
       }
     }
     return $favorites;
-  }
-
-  public function taskTimeInfo($task_id)
-  {
-    $task_info = new Process('task rc.verbose=nothing ' . $task_id . ' info');
-    $task_info->run();
-    $task_info_output = $task_info->getOutput();
-    if (strpos($task_info_output, 'Total active time')) {
-      $task_info_output_components = explode(' ', $task_info_output);
-
-      return trim(end($task_info_output_components));
-      if (!isset($task['project'])) {
-          $task['project'] = 'misc';
-      }
-      if (!isset($task['ac'])) {
-          $task['ac'] = '';
-      }
-      if (!isset($task['start'])) {
-          $task['start'] = '';
-      }
-    }
-
-    return null;
-
   }
 
   /**
