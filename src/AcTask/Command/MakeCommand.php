@@ -8,6 +8,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use AcTask\AcTask;
+use LibTask\Task\Task;
+use LibTask\Taskwarrior;
 
 class MakeCommand extends Command
 {
@@ -32,7 +34,6 @@ class MakeCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // @todo Move this into libtask-php.
         $url = $input->getArgument('url');
         $parse = parse_url($url);
         $parts = explode('/', ltrim($parse['path'], '/'));
@@ -47,9 +48,12 @@ class MakeCommand extends Command
         if (!$description) {
             return false;
         }
-        $process = new Process(sprintf('task add %s logged:false ac:%d project:%s url:%s', $description, $task_id, $project, $url));
-        $process->run();
-        $result = $process->getOutput();
-        $output->writeln('<info>' . $result . '</info>');
+        $task = new Task($description);
+        $task->setUdas(array('logged' => 'false', 'ac' => $task_id, 'url' => $url));
+        $task->setTags(array('work'));
+        $task->setDue('today');
+        $task->setProject($project);
+        $taskwarrior = new Taskwarrior();
+        $output->writeln('<info>' . $taskwarrior->save($task)->getOutput() . '</info>');
     }
 }
