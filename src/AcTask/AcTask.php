@@ -13,6 +13,8 @@ use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Process\Process;
+use LibTask\Task\Task;
+use LibTask\Taskwarrior;
 
 /**
  * Provides methods for interacting with the ActiveCollabApi.

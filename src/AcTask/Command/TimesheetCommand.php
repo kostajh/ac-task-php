@@ -7,6 +7,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use AcTask\AcTask;
+use LibTask\Task\Task;
+use LibTask\Taskwarrior;
 
 class TimesheetCommand extends Command
 {
@@ -28,9 +30,8 @@ class TimesheetCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // @todo Move this into libtask-php.
-        $process = new Process('task -life rc.verbose=nothing rc.json.array=TRUE status:pending export');
-        $process->run();
-        $tasks = json_decode($process->getOutput(), TRUE);
+        $taskwarrior = new Taskwarrior();
+        $tasks = $taskwarrior->loadTasks('-life', array('status' => 'pending'));
         $projects = array();
         $output->writeln('Searching through tasks...');
         $progress = $this->getHelperSet()->get('progress');
@@ -38,17 +39,18 @@ class TimesheetCommand extends Command
         $progress->start($output, count($tasks));
 
         foreach ($tasks as $task) {
-            $task_time = $this->AcTask->taskTimeInfo($task['id']);
-            if ($task_time) {
-                if (!isset($task['project'])) {
-                    $task['project'] = 'misc';
+            $task_time = $this->AcTask->taskTimeInfo($task->getId());
+            if ($task_time && $task->getId() !== null) {
+                if ($task->getProject() == null) {
+                    $task->setProject('misc');
                 }
-                $projects[$task['project']][] = array(
-                    'active' => isset($task['start']) ? $task['start'] : null,
-                    'id' => $task['id'],
+                $udas = $task->getUdas();
+                $projects[$task->getProject()][] = array(
+                    'active' => $task->getStart() ? $task->getStart() : null,
+                    'id' => $task->getId(),
                     'time' => $task_time,
-                    'task' => $task['description'],
-                    'ac' => isset($task['ac']) ? $task['ac'] : null,
+                    'task' => $task->getDescription(),
+                    'ac' => isset($udas['ac']) ? $udas['ac'] : null,
                   );
             }
             $progress->advance();
