@@ -136,7 +136,7 @@ class PullCommand extends Command
         }
         $output->writeln(sprintf('<info>Found %d new tasks.</info>', count($tasks_to_add)));
         $output->writeln(sprintf('<info>Found %d tasks to update.</info>', count($tasks_to_update)));
-        // Tasks to delete
+        // Tasks to complete
         foreach ($bw_managed_tasks as $permalink => $task_id) {
             if (!isset($assigned_tasks[$permalink])) {
                 $tasks_to_complete[$permalink] = $task_id;
@@ -148,7 +148,8 @@ class PullCommand extends Command
         if (count($tasks_to_add)) {
             foreach ($tasks_to_add as $task) {
                 $task_id = ($task['type'] == 'subtask') ? $this->AcTask->getAcTaskId($task['parent_url']) : $this->AcTask->getAcTaskId($task['permalink']);
-                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "%s" logged:"false" due:"%s" project:%s status:pending bwissueurl:"%s" ac:%d',
+                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "(bw)#%d - %s" logged:false +work due:"%s" project:%s status:pending bwissueurl:"%s" ac:%d',
+                    (int) $task['task_id'],
                     $task['description'],
                     strtotime($task['due']),
                     $task['project_slug'],
@@ -167,12 +168,17 @@ class PullCommand extends Command
         if (count($tasks_to_update)) {
             foreach ($tasks_to_update as $bw_issue_url => $task) {
                 // Get task ID to modify based on bwissueurl.
-                $tw_task = array_shift($this->AcTask->getTaskByConditions(array('bwissueurl' => $bw_issue_url)));
+                $tw_task = array_shift($this->AcTask->getTaskByConditions(
+                    array(
+                        'bwissueurl' => $bw_issue_url,
+                        'rc' => '/home/kosta/.bugwarrior_taskrc',
+                        )));
                 if ($tw_task) {
-                    $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d mod "%s" due:"%s"',
-                        $tw_task['id'],
-                        $task['description'],
-                        strtotime($task['due']));
+                    $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d mod "(bw)#%d - %s" +work due:"%s"',
+                        (int) $tw_task['id'],
+                        (int) $tw_task['id'],
+                        $tw_task['description'],
+                        strtotime($tw_task['due']));
                     $output->writeln('Update');
                     $output->writeln($command);
                     $process = new Process($command);
@@ -187,30 +193,42 @@ class PullCommand extends Command
 
         // Complete issues.
         if (count($tasks_to_complete)) {
-            foreach ($tasks_to_complete as $task) {
-                $output->writeln('Completed');
-                $output->writeln($command);
-                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d done', $task['id']);
-                $process = new Process($command);
-                $process->run();
+            foreach ($tasks_to_complete as $bw_issue_url => $ac_task_id) {
+                $tw_task = $this->AcTask->getTaskByConditions(
+                    array(
+                        'bwissueurl' => $bw_issue_url,
+                        'rc' => '/home/kosta/.bugwarrior_taskrc',
+                        ));
+                if ($tw_task) {
+                    print_r($tw_task);
+                    $output->writeln('Completed');
+                    $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d done', (int) $tw_task['id']);
+                    $process = new Process($command);
+                // $process->run();
                 $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
                 $this->notifySend('Completed task', $task['description']);
+                }
+                else {
+                    $output->writeln('Could not find task!');
+                }
+
             }
         }
 
         // Merge tasks in.
         $command = 'task rc.verbose=nothing rc.merge.autopush=no merge /home/kosta/.bugwarrior-tasks/';
+        $output->writeln('Merging tasks...');
         $process = new Process($command);
         $process->run();
         $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
 
         // Delete completed tasks from BW db.
         $command = 'task rc:/home/kosta/.bugwarrior_taskrc rc.verbose=nothing rc.confirmation=no rc.bulk=100 status:completed delete';
+        $output->writeln('Deleting completed tasks from BW db');
         $output->writeln($output);
         $process = new Process($command);
         $process->run();
-        $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
-        print_r($process->getOutput());
+        // $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
     }
 
     protected function notifySend($summary, $body)

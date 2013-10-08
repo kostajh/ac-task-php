@@ -28,7 +28,7 @@ class TimesheetCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         // @todo Move this into libtask-php.
-        $process = new Process('task -life rc.verbose=nothing logged:false rc.json.array=TRUE status:pending export');
+        $process = new Process('task -life rc.verbose=nothing rc.json.array=TRUE status:pending export');
         $process->run();
         $tasks = json_decode($process->getOutput(), TRUE);
         $projects = array();
