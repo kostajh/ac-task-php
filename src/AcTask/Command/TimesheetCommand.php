@@ -39,7 +39,7 @@ class TimesheetCommand extends Command
         $progress->start($output, count($tasks));
 
         foreach ($tasks as $task) {
-            $task_time = $this->AcTask->taskTimeInfo($task->getId());
+            $task_time = $taskwarrior->getTaskActiveTime($task->getUuid());
             if ($task_time && $task->getId() !== null) {
                 $udas = $task->getUdas();
                 $project = ($task->getProject() !== null) ? $task->getProject() : 'misc';
