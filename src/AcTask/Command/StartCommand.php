@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
+use LibTask\Taskwarrior;
 
 class StartCommand extends Command
 {
@@ -24,13 +25,11 @@ class StartCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // @todo Move this into libtask-php.
-        $process = new Process('task status:pending export');
-        $process->run();
-        $tasks = json_decode($process->getOutput(), TRUE);
+        $taskwarrior = new Taskwarrior();
+        $tasks = $taskwarrior->loadTasks(null, array('status' => 'pending'));
         $task_names = array();
         foreach ($tasks as $task) {
-            $task_names[$task['id']] = $task['description'];
+            $task_names[$task->getId()] = $task->getDescription();
         }
         $task_id = $input->getArgument('task_id');
 
@@ -47,10 +46,10 @@ class StartCommand extends Command
             return;
         }
         foreach ($tasks as $task) {
-            if (isset($task['start']) && !empty($task['start'])) {
+            if (($task->getStart() !== null) && !empty($task->getStart())) {
                 // We have an active task, so prompt user to stop current task
                 // and start new one.
-                $active_task = $task['description'];
+                $active_task = $task->getDescription();
                 $new_task = $task_names[$task_id];
 
                 if (!$dialog->askConfirmation(
@@ -61,15 +60,17 @@ class StartCommand extends Command
 
                     return;
                 } else {
-                    $process = new Process(sprintf('task %d stop', $task['id']));
-                    $process->run();
-                    $output->writeln('<comment>' . $process->getOutput() . '</comment>');
+                    $output->writeln('<comment>' . $taskwarrior->stop($task->getUuid())->getOutput() . '</comment>');
                 }
 
             }
         }
-        $process = new Process(sprintf('task %d start', $task_id));
-        $process->run();
-        $output->writeln('<info>' . $process->getOutput() . '</info>');
+        // Get the UUID
+        foreach ($tasks as $task) {
+            if ($task->getId() == $task_id) {
+                $output->writeln('<info>' . $taskwarrior->start($task->getUuid())->getOutput() . '</info>');
+                break;
+            }
+        }
     }
 }
