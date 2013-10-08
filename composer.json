@@ -1,4 +1,7 @@
 {
+  "name": "kostajh/ac-task",
+  "description": "Integration between Taskwarrior and ActiveCollab 3",
+  "license": "GPL-2.0+",
   "repositories": [
     {
         "type": "vcs",
@@ -12,7 +15,8 @@
       "symfony/process": "2.*",
       "kostajh/ActiveCollabApi": "dev-rewrite",
       "libtask/libtask": "dev-master",
-      "doctrine/common": "2.5"
+      "doctrine/common": "2.5.*@dev",
+      "jms/serializer": "dev-master"
   },
   "autoload": {
       "psr-0": { "AcTask": "src/" }
