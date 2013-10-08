@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use AcTask\AcTask;
+use LibTask\Taskwarrior;
 
 class LogCommand extends Command
 {
@@ -35,13 +36,11 @@ class LogCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // @todo Move this into libtask-php.
-        $process = new Process('task status:pending logged:false export');
-        $process->run();
-        $tasks = json_decode($process->getOutput(), TRUE);
+        $taskwarrior = new Taskwarrior();
+        $tasks = $taskwarrior->loadTasks(null, array('status' => 'pending', 'logged' => 'false'));
         $task_names = array();
         foreach ($tasks as $task) {
-            $task_names[$task['id']] = $task['description'];
+            $task_names[$task->getId()] = $task->getDescription();
         }
         $task_id = $input->getArgument('task_id');
 
@@ -59,8 +58,9 @@ class LogCommand extends Command
         if (!$task_id) {
             return;
         }
-        $task_data = $this->AcTask->getTask($task_id);
-        if (!$task_data['ac']) {
+        $task_data = $taskwarrior->loadTask($task_id);
+        $udas = $task_data->getUdas();
+        if (!isset($udas['ac'])) {
             return $output->writeln('<error>No AC task is linked!</error>');
         }
         $this->task_id = $task_id;
@@ -82,7 +82,7 @@ class LogCommand extends Command
             'submitted' => 'submitted',
         );
 
-        $path = sprintf('projects/%s/tasks/%s/tracking/time/add', $task_data['project'], $task_data['ac']);
+        $path = sprintf('projects/%s/tasks/%s/tracking/time/add', $task_data->getProject(), $udas['ac']);
         $ac->setRequestString($path);
         $result = $ac->callAPI($params, 'POST');
         if (isset($result['permalink'])) {
@@ -91,9 +91,11 @@ class LogCommand extends Command
             return $output->writeln('<error>An error occurred!</error>');
         }
         // Complete the task.
-        $process = new Process(sprintf('task %d done', $task_id));
-        $process->run();
-        $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
+        $udas = $task_data->getUdas();
+        $udas['logged'] = 'true';
+        $task_data->setUdas($udas);
+        $taskwarrior->update($task_data);
+        $output->writeln(sprintf('<info>%s</info>', $taskwarrior->complete($task_data->getUuid())->getOutput()));
     }
 
     protected function getConfirmation()

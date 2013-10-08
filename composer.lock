@@ -603,12 +603,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kostajh/LibTask.git",
-                "reference": "77d1b8c46dcdd206fb90da51412958faedac8a86"
+                "reference": "e9ebeec2bc9bd42533f87fbd150557ace39855ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kostajh/LibTask/zipball/77d1b8c46dcdd206fb90da51412958faedac8a86",
-                "reference": "77d1b8c46dcdd206fb90da51412958faedac8a86",
+                "url": "https://api.github.com/repos/kostajh/LibTask/zipball/e9ebeec2bc9bd42533f87fbd150557ace39855ca",
+                "reference": "e9ebeec2bc9bd42533f87fbd150557ace39855ca",
                 "shasum": ""
             },
             "require": {
@@ -646,7 +646,7 @@
                 "task",
                 "taskwarrior"
             ],
-            "time": "2013-10-08 16:38:08"
+            "time": "2013-10-08 16:52:26"
         },
         {
             "name": "phpcollection/phpcollection",
