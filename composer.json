@@ -10,7 +10,9 @@
       "symfony/yaml": "2.*",
       "symfony/filesystem": "2.*",
       "symfony/process": "2.*",
-      "kostajh/ActiveCollabApi": "dev-rewrite"
+      "kostajh/ActiveCollabApi": "dev-rewrite",
+      "libtask/libtask": "dev-master",
+      "doctrine/common": "2.5"
   },
   "autoload": {
       "psr-0": { "AcTask": "src/" }

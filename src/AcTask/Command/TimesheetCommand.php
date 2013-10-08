@@ -40,6 +40,9 @@ class TimesheetCommand extends Command
         foreach ($tasks as $task) {
             $task_time = $this->AcTask->taskTimeInfo($task['id']);
             if ($task_time) {
+                if (!isset($task['project'])) {
+                    $task['project'] = 'misc';
+                }
                 $projects[$task['project']][] = array(
                     'active' => isset($task['start']) ? $task['start'] : null,
                     'id' => $task['id'],
