@@ -37,7 +37,7 @@ class LogCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $taskwarrior = new Taskwarrior();
-        $tasks = $taskwarrior->loadTasks(null, array('status' => 'pending', 'logged' => 'false'));
+        $tasks = $taskwarrior->loadTasks('+work', array('status' => 'pending', 'logged' => 'false'));
         $task_names = array();
         foreach ($tasks as $task) {
             $task_names[$task->getId()] = $task->getDescription();
@@ -64,6 +64,7 @@ class LogCommand extends Command
             return $output->writeln('<error>No AC task is linked!</error>');
         }
         $this->task_id = $task_id;
+        $this->task_uuid = $task_data->getUuid();
         $this->time_type = $this->getTimeType();
         $this->billable = $this->getBillableStatus();
         $this->message = $this->getLogMessage();
@@ -116,7 +117,8 @@ class LogCommand extends Command
 
     protected function getTime()
     {
-        $time = $this->AcTask->taskTimeInfo($this->task_id);
+        $taskwarrior = new Taskwarrior();
+        $time = $taskwarrior->getTaskActiveTime($this->task_uuid);
         $this->output->writeln(sprintf('<info>Time logged in Taskwarrior: %s</info>', $time));
 
         return $this->dialog->ask(

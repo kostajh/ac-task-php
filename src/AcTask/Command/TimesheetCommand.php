@@ -31,7 +31,7 @@ class TimesheetCommand extends Command
     {
         // @todo Move this into libtask-php.
         $taskwarrior = new Taskwarrior();
-        $tasks = $taskwarrior->loadTasks('-life', array('status' => 'pending'));
+        $tasks = $taskwarrior->loadTasks('+work', array('status' => 'pending'));
         $projects = array();
         $output->writeln('Searching through tasks...');
         $progress = $this->getHelperSet()->get('progress');
@@ -40,15 +40,16 @@ class TimesheetCommand extends Command
 
         foreach ($tasks as $task) {
             $task_time = $taskwarrior->getTaskActiveTime($task->getUuid());
-            if ($task_time && $task->getId() !== null) {
+            if ($task->getId() !== null) {
                 $udas = $task->getUdas();
                 $project = ($task->getProject() !== null) ? $task->getProject() : 'misc';
                 $projects[$project][] = array(
-                    'active' => $task->getStart() ? $task->getStart() : null,
+                    'active' => $task->getStart(),
                     'id' => $task->getId(),
                     'time' => $task_time,
                     'task' => $task->getDescription(),
                     'ac' => isset($udas['ac']) ? $udas['ac'] : null,
+                    'due' => $task->getDue(),
                   );
             }
             $progress->advance();
@@ -71,8 +72,16 @@ class TimesheetCommand extends Command
                     $format_start = '<info>';
                     $format_end = '</info>';
                 }
-                $output->writeln('- ' . $format_start . '#' . $task['id'] . ' ' . $task['task'] . $format_end . '<comment> ' . $task['time'] . '</comment>');
-                if (!$task['ac']) {
+                $output->writeln(
+                    sprintf('- %s#%d %s%s<comment> %s</comment> <info>[%s]</info>',
+                    $format_start,
+                    $task['id'],
+                    $task['task'],
+                    $format_end,
+                    $task['time'],
+                    date('m/d', strtotime($task['due']))
+                ));
+                if ($task['time'] && !$task['ac']) {
                     $output->writeln('  <error>' . 'No AC task linked!' . '</error>');
                 }
             }

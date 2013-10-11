@@ -7,6 +7,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
+use LibTask\Taskwarrior;
 use AcTask\AcTask;
 
 class PullCommand extends Command
@@ -44,15 +45,17 @@ class PullCommand extends Command
     {
         $verbose = !$input->getOption('silent');
         // Get list of BW managed tasks.
-        $tasks = $this->AcTask->getTasks();
+        $taskwarrior = new Taskwarrior();
+        $tasks = $taskwarrior->loadTasks();
         $progress = $this->getHelperSet()->get('progress');
         $progress->setBarCharacter('<comment>=</comment>');
         $output->writeln('<info>Getting list of AC tasks.</info>');
         $progress->start($output, count($tasks));
         $bw_managed_tasks = array();
-        foreach ($tasks as $task) {
-            if (isset($task['bwissueurl'])) {
-                $bw_managed_tasks[$task['bwissueurl']] = $task['id'];
+        foreach ($tasks as $key => $task) {
+            $udas = $task->getUdas();
+            if (isset($udas['bwissueurl'])) {
+                $bw_managed_tasks[$udas['bwissueurl']] = $task->getId();
             }
             $progress->advance();
         }

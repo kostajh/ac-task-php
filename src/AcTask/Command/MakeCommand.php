@@ -54,6 +54,11 @@ class MakeCommand extends Command
         $task->setDue('today');
         $task->setProject($project);
         $taskwarrior = new Taskwarrior();
-        $output->writeln('<info>' . $taskwarrior->save($task)->getOutput() . '</info>');
+        $response = $taskwarrior->save($task)->getResponse();
+
+        $output->writeln(sprintf('<info>Added task %d "%s" in "%s".</info>',
+            $response['task']->getId(),
+            $response['task']->getDescription(),
+            $response['task']->getProject()));
     }
 }
