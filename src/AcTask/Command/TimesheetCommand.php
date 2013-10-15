@@ -29,7 +29,6 @@ class TimesheetCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        // @todo Move this into libtask-php.
         $taskwarrior = new Taskwarrior();
         $tasks = $taskwarrior->loadTasks('+work', array('status' => 'pending'));
         $projects = array();
@@ -73,13 +72,13 @@ class TimesheetCommand extends Command
                     $format_end = '</info>';
                 }
                 $output->writeln(
-                    sprintf('- %s#%d %s%s<comment> %s</comment> <info>[%s]</info>',
+                    sprintf('- %s#%d %s%s<comment> %s</comment>%s',
                     $format_start,
                     $task['id'],
                     $task['task'],
                     $format_end,
                     $task['time'],
-                    date('m/d', strtotime($task['due']))
+                    !empty($task['due']) ? ' <info>[Due ' . date('m/d', strtotime($task['due'])) . ']</info>' : null
                 ));
                 if ($task['time'] && !$task['ac']) {
                     $output->writeln('  <error>' . 'No AC task linked!' . '</error>');

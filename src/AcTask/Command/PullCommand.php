@@ -162,7 +162,7 @@ class PullCommand extends Command
                 $tw_task->setAnnotations(array($annotation));
                 $tw_task->setUdas(
                     array(
-                        'ac' => $remote_task['task_id'],
+                        'ac' => (int) $remote_task['task_id'],
                         'bwissueurl' => md5($remote_task['permalink']),
                         'logged' => 'false',
                     )
@@ -222,25 +222,22 @@ class PullCommand extends Command
 
         // Merge tasks in.
         $taskwarrior = new Taskwarrior();
-        $response = $taskwarrior->taskCommand('merge', null, array(
-            'rc.verbose=nothing',
+        $response = $taskwarrior->taskCommand('merge', '/home/kosta/.bugwarrior-tasks/',
+            array(
             'rc.merge.autopush=no',
-            '/home/kosta/.bugwarrior-tasks',
-            )
-        )->getResponse();
+        ))->getResponse();
         $output->writeln('Merging tasks...');
         $output->writeln(sprintf('<info>%s</info>', $response['output']));
 
         // Delete completed tasks from BW db.
         $response = $bugwarrior_taskwarrior->taskCommand('delete', null,
             array(
-                'rc.verbose=nothing',
                 'rc.bulk=100',
                 'status' => 'completed',
             )
         )->getResponse();
         $output->writeln('Deleting completed tasks from BW db');
-        $output->writeln(sprintf('<info>%s</info>', $result['output']));
+        $output->writeln(sprintf('<info>%s</info>', $response['output']));
     }
 
     protected function notifySend($summary, $body)
