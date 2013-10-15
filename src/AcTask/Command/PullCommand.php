@@ -167,18 +167,9 @@ class PullCommand extends Command
                         'logged' => 'false',
                     )
                 );
-                // $tw_task->setPriority($remote_task['priority']);
-                if ($remote_task['priority'] == 0) {
-                    $tw_task->setPriority('M');
-                }
-                elseif ($remote_task['priority'] > 0) {
-                    $tw_task->setPriority('H');
-                }
-                else {
-                    $tw_task->setPriortiy('L');
-                }
                 $tw_task->setDue($remote_task['due']);
                 $tw_task->setProject($remote_task['project_slug']);
+                $tw_task->setPriority($this->parsePriority($remote_task['priority']));
                 $tw_task->setTags(array('work'));
                 $output->writeln(sprintf('Adding task "%s"', $tw_task->getDescription()));
                 $response = $bugwarrior_taskwarrior->save($tw_task)->getResponse();
@@ -194,14 +185,18 @@ class PullCommand extends Command
                 $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
                 if (is_object($tw_task)) {
                     $tw_task->setDue(strtotime($remote_task['due']));
-                    $tw_task->setDescription($remote_task['description']);
+                    $tw_task->setDescription(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
                     $tags = $tw_task->getTags();
                     $tags += array('work');
+                    $tw_task->setPriority($this->parsePriority($remote_task['priority']));
                     $tw_task->setTags($tags);
                     $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
                     $response = $bugwarrior_taskwarrior->save($tw_task);
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
-                    // Notify Send?
+                    // Send notification only if task was actually modified.
+                    if (strpos($response['output'], 'Modified 1 tasks')) {
+                        $this->notifySend('Modified task', $tw_task->getDescription());
+                    }
                 }
                 else {
                     $output->writeln(sprintf('<error>The permalink %s should be linked to a task...</error>', $bw_issue_url));
@@ -225,28 +220,45 @@ class PullCommand extends Command
             }
         }
 
-        die();
-        return;
-
         // Merge tasks in.
-        $command = 'task rc.verbose=nothing rc.merge.autopush=no merge /home/kosta/.bugwarrior-tasks/';
+        $taskwarrior = new Taskwarrior();
+        $response = $taskwarrior->taskCommand('merge', null, array(
+            'rc.verbose=nothing',
+            'rc.merge.autopush=no',
+            '/home/kosta/.bugwarrior-tasks',
+            )
+        )->getResponse();
         $output->writeln('Merging tasks...');
-        $process = new Process($command);
-        $process->run();
-        $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
+        $output->writeln(sprintf('<info>%s</info>', $response['output']));
 
         // Delete completed tasks from BW db.
-        $command = 'task rc:/home/kosta/.bugwarrior_taskrc rc.verbose=nothing rc.confirmation=no rc.bulk=100 status:completed delete';
+        $response = $bugwarrior_taskwarrior->taskCommand('delete', null,
+            array(
+                'rc.verbose=nothing',
+                'rc.bulk=100',
+                'status' => 'completed',
+            )
+        )->getResponse();
         $output->writeln('Deleting completed tasks from BW db');
-        $output->writeln($output);
-        $process = new Process($command);
-        $process->run();
-        // $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
+        $output->writeln(sprintf('<info>%s</info>', $result['output']));
     }
 
     protected function notifySend($summary, $body)
     {
         $process = new Process(sprintf('notify-send "%s" "%s"', $summary, $body));
         $process->run();
+    }
+
+    protected function parsePriority($priority = 0)
+    {
+        if ($priority == 0) {
+            return 'M';
+        }
+        elseif ($priority > 0) {
+            return 'H';
+        }
+        else {
+            return 'L';
+        }
     }
 }
