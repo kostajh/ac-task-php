@@ -45,6 +45,12 @@ class StartCommand extends Command
         if (!$task_id) {
             return;
         }
+        $task = $taskwarrior->loadTask($task_id);
+        $udas = $task->getUdas();
+        if (isset($udas['bwissueurl']) && !empty($udas['bwissueurl'])) {
+            $output->writeln('<error>Clone this task before starting it.</error>');
+            return false;
+        }
         foreach ($tasks as $task) {
             if (($task->getStart() !== null) && !empty($task->getStart())) {
                 // We have an active task, so prompt user to stop current task
