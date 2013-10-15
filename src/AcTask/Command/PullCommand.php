@@ -119,7 +119,7 @@ class PullCommand extends Command
                     if ($subtask['assignee_id'] == $this->AcTask->userId && !$subtask['completed_on']) {
                         $assigned_tasks[md5($subtask['permalink'])] = array(
                             'permalink' => $subtask['permalink'],
-                            'task_id' => $subtask['id'],
+                            'task_id' => $subtask['parent_id'],
                             'project_id' => isset($subtask['project_id']) ? $subtask['project_id'] : null,
                             'project_slug' => $this->AcTask->getProjectSlug($subtask['permalink']),
                             'description' => $subtask['body'],
@@ -226,12 +226,17 @@ class PullCommand extends Command
             }
         }
 
+        $taskwarrior = new Taskwarrior();
+
         // Complete issues.
         if (count($tasks_to_complete)) {
             foreach ($tasks_to_complete as $bw_issue_url => $ac_task_id) {
                 $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
                 if (is_object($tw_task)) {
                     $response = $bugwarrior_taskwarrior->complete($tw_task->getUuid())->getResponse();
+                    $output->writeln(sprintf('<info>%s</info>', $response['output']));
+                    // Complete the task in the primary task database.
+                    $response = $taskwarrior->complete($tw_task->getUuid())->getResponse();
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
                     $this->notifySend('Completed task', $tw_task->getDescription());
                 }
@@ -243,7 +248,6 @@ class PullCommand extends Command
         }
 
         // Merge tasks in.
-        $taskwarrior = new Taskwarrior();
         $response = $taskwarrior->taskCommand('merge', '/home/kosta/.bugwarrior-tasks/',
             array(
             'rc.merge.autopush=no',
@@ -252,14 +256,14 @@ class PullCommand extends Command
         $output->writeln(sprintf('<info>%s</info>', $response['output']));
 
         // Delete completed tasks from BW db.
-        $response = $bugwarrior_taskwarrior->taskCommand('delete', null,
-            array(
-                'rc.bulk=100',
-                'status' => 'completed',
-            )
-        )->getResponse();
+        $tasks = $bugwarrior_taskwarrior->loadTasks(null, array('status' => 'completed'), 'rc.bulk=100');
         $output->writeln('Deleting completed tasks from BW db');
-        $output->writeln(sprintf('<info>%s</info>', $response['output']));
+        if (count($tasks)) {
+            foreach ($tasks as $task) {
+                $response = $bugwarrior_taskwarrior->taskCommand('delete', $task->getUuid())->getResponse();
+                $output->writeln(sprintf('<info>%s</info>', $response['output']));
+            }
+        }
     }
 
     protected function notifySend($summary, $body)

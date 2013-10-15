@@ -83,7 +83,7 @@ class LogCommand extends Command
             'submitted' => 'submitted',
         );
 
-        $path = sprintf('projects/%s/tasks/%s/tracking/time/add', $task_data->getProject(), $udas['ac']);
+        $path = sprintf('projects/%s/tasks/%s/tracking/time/add', $task_data->getProject(), (int) $udas['ac']);
         $ac->setRequestString($path);
         $result = $ac->callAPI($params, 'POST');
         if (isset($result['permalink'])) {
