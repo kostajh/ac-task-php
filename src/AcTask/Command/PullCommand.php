@@ -8,6 +8,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Process\Process;
 use LibTask\Taskwarrior;
+use LibTask\Task\Task;
+use LibTask\Task\Annotation;
 use AcTask\AcTask;
 
 class PullCommand extends Command
@@ -147,46 +149,47 @@ class PullCommand extends Command
         }
         $output->writeln(sprintf('<info>Found %d tasks to complete.</info>', count($tasks_to_complete)));
 
+        $bugwarrior_taskwarrior = new Taskwarrior('/home/kosta/.bugwarrior_taskrc', '/home/kosta/.bugwarrior-tasks');
+
         // Add new issues to BW database.
         if (count($tasks_to_add)) {
-            foreach ($tasks_to_add as $task) {
-                $task_id = ($task['type'] == 'subtask') ? $this->AcTask->getAcTaskId($task['parent_url']) : $this->AcTask->getAcTaskId($task['permalink']);
-                $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc add "(bw)#%d - %s" logged:false +work due:"%s" project:%s status:pending bwissueurl:"%s" ac:%d',
-                    (int) $task['task_id'],
-                    $task['description'],
-                    strtotime($task['due']),
-                    $task['project_slug'],
-                    $task['permalink'],
-                    $task['task_id']
+            foreach ($tasks_to_add as $remote_task) {
+                $task_id = ($remote_task['type'] == 'subtask') ? $this->AcTask->getAcTaskId($remote_task['parent_url']) : $this->AcTask->getAcTaskId($remote_task['permalink']);
+                $tw_task = new Task(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
+                $annotation = new Annotation('Added by Bugwarrior PHP');
+                $tw_task->setAnnotations(array($annotation));
+                $tw_task->setUdas(
+                    array(
+                        'ac' => (int) $remote_task['task_id'],
+                        'bwissueurl' => $remote_task['permalink'],
+                        'logged' => 'false',
+                    )
                 );
-                $output->writeln('Add');
-                $output->writeln($command);
-                $process = new Process($command);
-                $process->run();
-                $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
-                $this->notifySend('Added new task', $task['description']);
+                $tw_task->setDue($remote_task['due']);
+                $tw_task->setProject($remote_task['project_slug']);
+                $tw_task->setTags(array('work'));
+                $output->writeln(sprintf('Adding task "%s"', $tw_task->getDescription()));
+                $response = $bugwarrior_taskwarrior->save($tw_task)->getResponse();
+                $output->writeln(sprintf('<info>%s</info>', $response['output']));
+                $this->notifySend('Added new task', $tw_task->getDescription());
             }
         }
+
         // Update existing issues.
         if (count($tasks_to_update)) {
-            foreach ($tasks_to_update as $bw_issue_url => $task) {
+            foreach ($tasks_to_update as $bw_issue_url => $remote_task) {
                 // Get task ID to modify based on bwissueurl.
-                $tw_task = array_shift($this->AcTask->getTaskByConditions(
-                    array(
-                        'bwissueurl' => $bw_issue_url,
-                        'rc' => '/home/kosta/.bugwarrior_taskrc',
-                        )));
-                if ($tw_task) {
-                    $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d mod "(bw)#%d - %s" +work due:"%s"',
-                        (int) $tw_task['id'],
-                        (int) $tw_task['id'],
-                        $tw_task['description'],
-                        strtotime($tw_task['due']));
-                    $output->writeln('Update');
-                    $output->writeln($command);
-                    $process = new Process($command);
-                    $process->run();
-                    $output->writeln($process->getOutput());
+                $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
+                if (is_object($tw_task)) {
+                    $tw_task->setDue(strtotime($remote_task['due']));
+                    $tw_task->setDescription($remote_task['description']);
+                    $tags = $tw_task->getTags();
+                    $tags += array('work');
+                    $tw_task->setTags($tags);
+                    $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
+                    $response = $bugwarrior_taskwarrior->save($tw_task)->getResponse();
+                    $output->writeln(sprintf('<info>%s</info>', $response['output']));
+                    // Notify Send?
                 }
                 else {
                     $output->writeln(sprintf('<error>The permalink %s should be linked to a task...</error>', $bw_issue_url));
@@ -197,19 +200,13 @@ class PullCommand extends Command
         // Complete issues.
         if (count($tasks_to_complete)) {
             foreach ($tasks_to_complete as $bw_issue_url => $ac_task_id) {
-                $tw_task = $this->AcTask->getTaskByConditions(
-                    array(
-                        'bwissueurl' => $bw_issue_url,
-                        'rc' => '/home/kosta/.bugwarrior_taskrc',
-                        ));
-                if ($tw_task) {
-                    print_r($tw_task);
+                $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
+                if (is_object($tw_task)) {
                     $output->writeln('Completed');
-                    $command = sprintf('task rc:/home/kosta/.bugwarrior_taskrc %d done', (int) $tw_task['id']);
-                    $process = new Process($command);
-                // $process->run();
-                $output->writeln(sprintf('<info>%s</info>', $process->getOutput()));
-                $this->notifySend('Completed task', $task['description']);
+                    $output->writeln(sprintf('Completing task "%s"', $tw_task->getDescription()));
+                    $response = $bugwarrior_taskwarrior->complete($tw_task->getUuid())->getResponse();
+                    $output->writeln(sprintf('<info>%s</info>', $response['output']));
+                    $this->notifySend('Completed task', $tw_task->getDescription());
                 }
                 else {
                     $output->writeln('Could not find task!');
@@ -217,6 +214,9 @@ class PullCommand extends Command
 
             }
         }
+
+        die();
+        return;
 
         // Merge tasks in.
         $command = 'task rc.verbose=nothing rc.merge.autopush=no merge /home/kosta/.bugwarrior-tasks/';
