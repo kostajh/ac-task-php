@@ -19,6 +19,7 @@ use AcTask\Command\TimesheetCommand;
 use AcTask\Command\LogCommand;
 use AcTask\Command\PullCommand;
 use AcTask\Command\OpenCommand;
+use AcTask\Command\CloneCommand;
 use LibTask\Task\Task;
 
 $task = new Task();
@@ -30,4 +31,5 @@ $app->add(new MakeCommand);
 $app->add(new LogCommand);
 $app->add(new PullCommand);
 $app->add(new OpenCommand);
+$app->add(new CloneCommand);
 $app->run();
