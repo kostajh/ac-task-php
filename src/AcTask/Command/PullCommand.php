@@ -64,6 +64,14 @@ class PullCommand extends Command
         $progress->finish();
         $output->writeln(sprintf('<info>Found %d tasks managed by Bugwarrior.</info>', count($bw_managed_tasks)));
 
+        // Get labels
+        $output->writeln('Getting labels...');
+        $label_data = $this->AcTask->ActiveCollab->getAssignmentLabels();
+        $labels = array();
+        foreach ($label_data as $label) {
+            $labels[$label['id']] = preg_replace("/ +/", "", $label['name']);
+        }
+
         // Get favorite projects.
         $output->writeln('Getting list of starred projects...');
         $projects = $this->AcTask->getFavoriteProjects();
@@ -86,6 +94,7 @@ class PullCommand extends Command
                             'permalink' => $task['permalink'],
                             'task_id' => $task['task_id'],
                             'id' => $task['id'],
+                            'label' => isset($task['label_id']) && isset($labels[$task['label_id']]) ? $labels[$task['label_id']] : null,
                             'project_id' => $task['project_id'],
                             'project_slug' => $this->AcTask->getProjectSlug($task['permalink']),
                             'description' => $task['name'],
@@ -115,6 +124,7 @@ class PullCommand extends Command
                             'project_slug' => $this->AcTask->getProjectSlug($subtask['permalink']),
                             'description' => $subtask['body'],
                             'type' => 'subtask',
+                            'label' => isset($subtask['label_id']) && isset($labels[$subtask['label_id']]) ? $labels[$subtask['label_id']] : null,
                             'created_on' => $subtask['created_on'],
                             'parent_url' => $subtask['parent_url'],
                             'created_by_id' => $subtask['created_by_id'],
@@ -170,7 +180,11 @@ class PullCommand extends Command
                 $tw_task->setDue($remote_task['due']);
                 $tw_task->setProject($remote_task['project_slug']);
                 $tw_task->setPriority($this->parsePriority($remote_task['priority']));
-                $tw_task->setTags(array('work'));
+                $tags = array('work');
+                if (!empty($remote_task['label'])) {
+                    $tags[] = $remote_task['label'];
+                }
+                $tw_task->setTags($tags);
                 $output->writeln(sprintf('Adding task "%s"', $tw_task->getDescription()));
                 $response = $bugwarrior_taskwarrior->save($tw_task)->getResponse();
                 $output->writeln(sprintf('<info>%s</info>', $response['output']));
@@ -186,10 +200,18 @@ class PullCommand extends Command
                 if (is_object($tw_task)) {
                     $tw_task->setDue(strtotime($remote_task['due']));
                     $tw_task->setDescription(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
-                    $tags = $tw_task->getTags();
-                    $tags += array('work');
                     $tw_task->setPriority($this->parsePriority($remote_task['priority']));
-                    $tw_task->setTags($tags);
+                    $tags = $tw_task->getTags();
+                    $formatted_tags = array();
+                    foreach ($tags as $tag) {
+                        if (!empty($tag)) {
+                            $formatted_tags[$tag] = $tag;
+                        }
+                    }
+                    if (!empty($remote_task['label'])) {
+                        $formatted_tags[$remote_task['label']] = $remote_task['label'];
+                    }
+                    $tw_task->setTags(array_keys($formatted_tags));
                     $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
                     $response = $bugwarrior_taskwarrior->save($tw_task);
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
