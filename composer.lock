@@ -494,12 +494,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/schmittjoh/serializer.git",
-                "reference": "d4bf45027f5843ea5984d6246e59963ae4b3ebf2"
+                "reference": "a53384ff91a383c8fc12ff47eb1dd49a249a0be7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/d4bf45027f5843ea5984d6246e59963ae4b3ebf2",
-                "reference": "d4bf45027f5843ea5984d6246e59963ae4b3ebf2",
+                "url": "https://api.github.com/repos/schmittjoh/serializer/zipball/a53384ff91a383c8fc12ff47eb1dd49a249a0be7",
+                "reference": "a53384ff91a383c8fc12ff47eb1dd49a249a0be7",
                 "shasum": ""
             },
             "require": {
@@ -553,7 +553,7 @@
                 "serialization",
                 "xml"
             ],
-            "time": "2013-10-07 20:57:22"
+            "time": "2013-10-11 19:10:14"
         },
         {
             "name": "kostajh/ActiveCollabApi",
@@ -603,12 +603,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/kostajh/LibTask.git",
-                "reference": "876db7b7b04c9a326e42cc62da331786efe1dce6"
+                "reference": "ed61f16553b047089f5a76c760c4c392b8b7260d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/kostajh/LibTask/zipball/876db7b7b04c9a326e42cc62da331786efe1dce6",
-                "reference": "876db7b7b04c9a326e42cc62da331786efe1dce6",
+                "url": "https://api.github.com/repos/kostajh/LibTask/zipball/ed61f16553b047089f5a76c760c4c392b8b7260d",
+                "reference": "ed61f16553b047089f5a76c760c4c392b8b7260d",
                 "shasum": ""
             },
             "require": {
@@ -646,7 +646,7 @@
                 "task",
                 "taskwarrior"
             ],
-            "time": "2013-10-08 17:25:03"
+            "time": "2013-10-15 13:01:30"
         },
         {
             "name": "phpcollection/phpcollection",
@@ -749,7 +749,7 @@
         },
         {
             "name": "symfony/class-loader",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/ClassLoader",
             "source": {
                 "type": "git",
@@ -799,7 +799,7 @@
         },
         {
             "name": "symfony/config",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Config",
             "source": {
                 "type": "git",
@@ -847,7 +847,7 @@
         },
         {
             "name": "symfony/console",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Console",
             "source": {
                 "type": "git",
@@ -900,7 +900,7 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Filesystem",
             "source": {
                 "type": "git",
@@ -947,17 +947,17 @@
         },
         {
             "name": "symfony/process",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Process",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Process.git",
-                "reference": "e35e3cea61c851ece0967d8d26b926633e65535a"
+                "reference": "81191e354fe9dad0451036ccf0fdf283649d3f1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Process/zipball/e35e3cea61c851ece0967d8d26b926633e65535a",
-                "reference": "e35e3cea61c851ece0967d8d26b926633e65535a",
+                "url": "https://api.github.com/repos/symfony/Process/zipball/81191e354fe9dad0451036ccf0fdf283649d3f1e",
+                "reference": "81191e354fe9dad0451036ccf0fdf283649d3f1e",
                 "shasum": ""
             },
             "require": {
@@ -990,11 +990,11 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "http://symfony.com",
-            "time": "2013-09-19 09:45:20"
+            "time": "2013-10-09 21:17:57"
         },
         {
             "name": "symfony/serializer",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Serializer",
             "source": {
                 "type": "git",
@@ -1041,7 +1041,7 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.3.5",
+            "version": "v2.3.6",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",

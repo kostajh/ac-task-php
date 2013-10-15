@@ -47,7 +47,7 @@ class PullCommand extends Command
     {
         $verbose = !$input->getOption('silent');
         // Get list of BW managed tasks.
-        $taskwarrior = new Taskwarrior();
+        $taskwarrior = new Taskwarrior('/home/kosta/.bugwarrior_taskrc', '/home/kosta/.bugwarrior-tasks');
         $tasks = $taskwarrior->loadTasks();
         $progress = $this->getHelperSet()->get('progress');
         $progress->setBarCharacter('<comment>=</comment>');
@@ -82,7 +82,7 @@ class PullCommand extends Command
 
                 foreach ($tasks as $task) {
                     if ($task['assignee_id'] == $this->AcTask->userId && !$task['completed_on']) {
-                        $assigned_tasks[$task['permalink']] = array(
+                        $assigned_tasks[md5($task['permalink'])] = array(
                             'permalink' => $task['permalink'],
                             'task_id' => $task['task_id'],
                             'id' => $task['id'],
@@ -108,7 +108,7 @@ class PullCommand extends Command
 
                 foreach ($subtasks as $subtask) {
                     if ($subtask['assignee_id'] == $this->AcTask->userId && !$subtask['completed_on']) {
-                        $assigned_tasks[$subtask['permalink']] = array(
+                        $assigned_tasks[md5($subtask['permalink'])] = array(
                             'permalink' => $subtask['permalink'],
                             'task_id' => $subtask['id'],
                             'project_id' => isset($subtask['project_id']) ? $subtask['project_id'] : null,
@@ -139,6 +139,7 @@ class PullCommand extends Command
                 $tasks_to_update[$permalink] = $task;
             }
         }
+
         $output->writeln(sprintf('<info>Found %d new tasks.</info>', count($tasks_to_add)));
         $output->writeln(sprintf('<info>Found %d tasks to update.</info>', count($tasks_to_update)));
         // Tasks to complete
@@ -147,6 +148,7 @@ class PullCommand extends Command
                 $tasks_to_complete[$permalink] = $task_id;
             }
         }
+
         $output->writeln(sprintf('<info>Found %d tasks to complete.</info>', count($tasks_to_complete)));
 
         $bugwarrior_taskwarrior = new Taskwarrior('/home/kosta/.bugwarrior_taskrc', '/home/kosta/.bugwarrior-tasks');
@@ -160,11 +162,21 @@ class PullCommand extends Command
                 $tw_task->setAnnotations(array($annotation));
                 $tw_task->setUdas(
                     array(
-                        'ac' => (int) $remote_task['task_id'],
-                        'bwissueurl' => $remote_task['permalink'],
+                        'ac' => $remote_task['task_id'],
+                        'bwissueurl' => md5($remote_task['permalink']),
                         'logged' => 'false',
                     )
                 );
+                // $tw_task->setPriority($remote_task['priority']);
+                if ($remote_task['priority'] == 0) {
+                    $tw_task->setPriority('M');
+                }
+                elseif ($remote_task['priority'] > 0) {
+                    $tw_task->setPriority('H');
+                }
+                else {
+                    $tw_task->setPriortiy('L');
+                }
                 $tw_task->setDue($remote_task['due']);
                 $tw_task->setProject($remote_task['project_slug']);
                 $tw_task->setTags(array('work'));
@@ -187,7 +199,7 @@ class PullCommand extends Command
                     $tags += array('work');
                     $tw_task->setTags($tags);
                     $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
-                    $response = $bugwarrior_taskwarrior->save($tw_task)->getResponse();
+                    $response = $bugwarrior_taskwarrior->save($tw_task);
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
                     // Notify Send?
                 }
@@ -202,14 +214,12 @@ class PullCommand extends Command
             foreach ($tasks_to_complete as $bw_issue_url => $ac_task_id) {
                 $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
                 if (is_object($tw_task)) {
-                    $output->writeln('Completed');
-                    $output->writeln(sprintf('Completing task "%s"', $tw_task->getDescription()));
                     $response = $bugwarrior_taskwarrior->complete($tw_task->getUuid())->getResponse();
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
                     $this->notifySend('Completed task', $tw_task->getDescription());
                 }
                 else {
-                    $output->writeln('Could not find task!');
+                    $output->writeln(sprintf('<error>Could not find task for %s</error>', $bw_issue_url));
                 }
 
             }
