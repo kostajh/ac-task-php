@@ -30,7 +30,7 @@ class TimesheetCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $taskwarrior = new Taskwarrior();
-        $tasks = $taskwarrior->loadTasks('+work', array('status' => 'pending'));
+        $tasks = $taskwarrior->loadTasks('+work', array('status' => 'pending', 'logged' => 'false'));
         $projects = array();
         $output->writeln('Searching through tasks...');
         $progress = $this->getHelperSet()->get('progress');
@@ -39,7 +39,7 @@ class TimesheetCommand extends Command
 
         foreach ($tasks as $task) {
             $task_time = $taskwarrior->getTaskActiveTime($task->getUuid());
-            if ($task->getId() !== null) {
+            if ($task->getId() !== null && $task_time) {
                 $udas = $task->getUdas();
                 $project = ($task->getProject() !== null) ? $task->getProject() : 'misc';
                 $projects[$project][] = array(
