@@ -47,8 +47,8 @@ class PullCommand extends Command
     {
         $verbose = !$input->getOption('silent');
         // Get list of BW managed tasks.
-        $taskwarrior = new Taskwarrior('/home/kosta/.bugwarrior_taskrc', '/home/kosta/.bugwarrior-tasks');
-        $tasks = $taskwarrior->loadTasks();
+        $taskwarrior = new Taskwarrior();
+        $tasks = $taskwarrior->loadTasks(null, array('status' => 'pending'));
         $progress = $this->getHelperSet()->get('progress');
         $progress->setBarCharacter('<comment>=</comment>');
         $output->writeln('<info>Getting list of AC tasks.</info>');
@@ -77,7 +77,7 @@ class PullCommand extends Command
         $projects = $this->AcTask->getFavoriteProjects();
 
         // Get tasks per project
-        $output->writeln('Getting tasks for projects');
+        $output->writeln('Getting tasks for projects...');
         // Testing.
         // $projects = array_slice($projects, 3, 6);
         $assigned_tasks = array();
@@ -161,20 +161,19 @@ class PullCommand extends Command
 
         $output->writeln(sprintf('<info>Found %d tasks to complete.</info>', count($tasks_to_complete)));
 
-        $bugwarrior_taskwarrior = new Taskwarrior('/home/kosta/.bugwarrior_taskrc', '/home/kosta/.bugwarrior-tasks');
-
         // Add new issues to BW database.
         if (count($tasks_to_add)) {
             foreach ($tasks_to_add as $remote_task) {
                 $task_id = ($remote_task['type'] == 'subtask') ? $this->AcTask->getAcTaskId($remote_task['parent_url']) : $this->AcTask->getAcTaskId($remote_task['permalink']);
                 $tw_task = new Task(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
-                $annotation = new Annotation('Added by Bugwarrior PHP');
+                $annotation = new Annotation('Added by Bugwarrior');
                 $tw_task->setAnnotations(array($annotation));
                 $tw_task->setUdas(
                     array(
                         'ac' => (int) $remote_task['task_id'],
                         'bwissueurl' => md5($remote_task['permalink']),
                         'logged' => 'false',
+                        'permalink' => $remote_task['permalink'],
                     )
                 );
                 $tw_task->setDue($remote_task['due']);
@@ -186,7 +185,7 @@ class PullCommand extends Command
                 }
                 $tw_task->setTags($tags);
                 $output->writeln(sprintf('Adding task "%s"', $tw_task->getDescription()));
-                $response = $bugwarrior_taskwarrior->save($tw_task)->getResponse();
+                $response = $taskwarrior->save($tw_task)->getResponse();
                 $output->writeln(sprintf('<info>%s</info>', $response['output']));
                 $this->notifySend('Added new task', $tw_task->getDescription());
             }
@@ -196,7 +195,7 @@ class PullCommand extends Command
         if (count($tasks_to_update)) {
             foreach ($tasks_to_update as $bw_issue_url => $remote_task) {
                 // Get task ID to modify based on bwissueurl.
-                $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
+                $tw_task = $taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
                 if (is_object($tw_task)) {
                     $tw_task->setDue(strtotime($remote_task['due']));
                     $tw_task->setDescription(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
@@ -213,7 +212,7 @@ class PullCommand extends Command
                     }
                     $tw_task->setTags(array_keys($formatted_tags));
                     $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
-                    $response = $bugwarrior_taskwarrior->save($tw_task);
+                    $response = $taskwarrior->save($tw_task);
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
                     // Send notification only if task was actually modified.
                     if (strpos($response['output'], 'Modified 1 tasks')) {
@@ -226,16 +225,11 @@ class PullCommand extends Command
             }
         }
 
-        $taskwarrior = new Taskwarrior();
-
         // Complete issues.
         if (count($tasks_to_complete)) {
             foreach ($tasks_to_complete as $bw_issue_url => $ac_task_id) {
-                $tw_task = $bugwarrior_taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
+                $tw_task = $taskwarrior->loadTask(null, array('bwissueurl' => $bw_issue_url));
                 if (is_object($tw_task)) {
-                    $response = $bugwarrior_taskwarrior->complete($tw_task->getUuid())->getResponse();
-                    $output->writeln(sprintf('<info>%s</info>', $response['output']));
-                    // Complete the task in the primary task database.
                     $response = $taskwarrior->complete($tw_task->getUuid())->getResponse();
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
                     $this->notifySend('Completed task', $tw_task->getDescription());
@@ -247,23 +241,6 @@ class PullCommand extends Command
             }
         }
 
-        // Merge tasks in.
-        $response = $taskwarrior->taskCommand('merge', '/home/kosta/.bugwarrior-tasks/',
-            array(
-            'rc.merge.autopush=no',
-        ))->getResponse();
-        $output->writeln('Merging tasks...');
-        $output->writeln(sprintf('<info>%s</info>', $response['output']));
-
-        // Delete completed tasks from BW db.
-        $tasks = $bugwarrior_taskwarrior->loadTasks(null, array('status' => 'completed'), 'rc.bulk=100');
-        $output->writeln('Deleting completed tasks from BW db');
-        if (count($tasks)) {
-            foreach ($tasks as $task) {
-                $response = $bugwarrior_taskwarrior->taskCommand('delete', $task->getUuid())->getResponse();
-                $output->writeln(sprintf('<info>%s</info>', $response['output']));
-            }
-        }
     }
 
     protected function notifySend($summary, $body)
