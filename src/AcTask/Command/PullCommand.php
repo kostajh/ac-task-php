@@ -45,6 +45,9 @@ class PullCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        // First things first. Make backup of ~/.task.
+        $process = new Process('cd /home/kosta/.task && git add . && git commit -m "Snapshot before Bugwarrior Pull"');
+        $process->run();
         $verbose = !$input->getOption('silent');
         // Get list of BW managed tasks.
         $taskwarrior = new Taskwarrior();
