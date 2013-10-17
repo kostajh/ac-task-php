@@ -46,6 +46,9 @@ class StartCommand extends Command
             return;
         }
         $task = $taskwarrior->loadTask($task_id);
+        if (!$task) {
+          return $output->writeln('<error>Failed to load task ' . $task_id . '</error>');
+        }
         $udas = $task->getUdas();
         if (isset($udas['bwissueurl']) && !empty($udas['bwissueurl'])) {
             $output->writeln('<error>Clone this task before starting it.</error>');

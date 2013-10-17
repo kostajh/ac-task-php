@@ -171,6 +171,7 @@ class PullCommand extends Command
                 $tw_task = new Task(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
                 $annotation = new Annotation('Added by Bugwarrior');
                 $tw_task->setAnnotations(array($annotation));
+                // TODO: If it's a subtask, "ac" should be different.
                 $tw_task->setUdas(
                     array(
                         'ac' => (int) $remote_task['task_id'],
@@ -204,6 +205,9 @@ class PullCommand extends Command
                     $tw_task->setDescription(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
                     $tw_task->setPriority($this->parsePriority($remote_task['priority']));
                     $tags = $tw_task->getTags();
+                    $udas = $tw_task->getUdas();
+                    $udas['ac'] = (int) $remote_task['task_id'];
+                    $tw_task->setUdas($udas);
                     $formatted_tags = array();
                     foreach ($tags as $tag) {
                         if (!empty($tag)) {
