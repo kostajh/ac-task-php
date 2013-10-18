@@ -171,10 +171,19 @@ class PullCommand extends Command
                 $tw_task = new Task(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
                 $annotation = new Annotation('Added by Bugwarrior');
                 $tw_task->setAnnotations(array($annotation));
-                // TODO: If it's a subtask, "ac" should be different.
+                // If it's a subtask, "ac" should be Task ID, not Subtask ID.
+                if ($remote_task['type'] == 'subtask') {
+                  $parse = parse_url($remote_task['permalink']);
+                  $parts = explode('/', ltrim($parse['path'], '/'));
+                  $project = $parts[1];
+                  $ac_task_id = (int) $parts[3];
+                }
+                else {
+                  $ac_task_id = (int) $remote_task['task_id'];
+                }
                 $tw_task->setUdas(
                     array(
-                        'ac' => (int) $remote_task['task_id'],
+                        'ac' => $ac_task_id,
                         'bwissueurl' => md5($remote_task['permalink']),
                         'logged' => 'false',
                         'permalink' => $remote_task['permalink'],
