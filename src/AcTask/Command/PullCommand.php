@@ -227,12 +227,15 @@ class PullCommand extends Command
                         $formatted_tags[$remote_task['label']] = $remote_task['label'];
                     }
                     $tw_task->setTags(array_keys($formatted_tags));
-                    $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
+                    
                     $response = $taskwarrior->save($tw_task);
-                    $output->writeln(sprintf('<info>%s</info>', $response['output']));
-                    // Send notification only if task was actually modified.
+                    // Send notification and write to logs only if task was 
+                    // actually modified.
                     if (strpos($response['output'], 'Modified 1 tasks')) {
                         $this->notifySend('Modified task', $tw_task->getDescription());
+                        $output->writeln(sprintf('Updating task "%s"', $tw_task->getDescription()));
+                        $output->writeln(sprintf('<info>%s</info>', $response['output']));
+                        $output->writeln(sprintf('<info>%s</info>', $response['error_output']));
                     }
                 }
                 else {
