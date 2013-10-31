@@ -68,19 +68,20 @@ class PullCommand extends Command
         $output->writeln(sprintf('<info>Found %d tasks managed by Bugwarrior.</info>', count($bw_managed_tasks)));
 
         // Get labels
-        $output->writeln('Getting labels...');
+        $output->writeln('<info>Getting labels...</info>');
         $label_data = $this->AcTask->ActiveCollab->getAssignmentLabels();
         $labels = array();
         foreach ($label_data as $label) {
             $labels[$label['id']] = preg_replace("/ +/", "", $label['name']);
         }
+        $output->writeln(sprintf('<info>Found %d labels.</info>', count($labels)));
 
         // Get favorite projects.
-        $output->writeln('Getting list of starred projects...');
+        $output->writeln('<info>Getting list of starred projects...</info>');
         $projects = $this->AcTask->getFavoriteProjects();
-
+        $output->writeln(sprintf('<info>Found %d projects</info>.', count($projects)));
         // Get tasks per project
-        $output->writeln('Getting tasks for projects...');
+        $output->writeln('<info>Getting tasks for projects...</info>');
         // Testing.
         // $projects = array_slice($projects, 3, 6);
         $assigned_tasks = array();
