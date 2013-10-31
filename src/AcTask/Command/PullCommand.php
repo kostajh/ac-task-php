@@ -87,6 +87,14 @@ class PullCommand extends Command
         $assigned_tasks = array();
         foreach ($projects as $project) {
             $output->writeln(sprintf('<info>Analyzing tasks and subtasks for %s...</info>', $project['name']));
+            // Get milestones for the project.
+            $milestones = $this->AcTask->ActiveCollab->listMilestonesByProjectId($project['id']);
+            $milestones_sorted = array();
+            if (count($milestones)) {
+                foreach ($milestones as $milestone) {
+                    $milestones_sorted[$milestone['id']] = $milestone;
+                }
+            }
             $tasks = $this->AcTask->ActiveCollab->getTasksForProject($project['id']);
             if (count($tasks)) {
                 $task_progress = $this->getHelperSet()->get('progress');
@@ -94,6 +102,11 @@ class PullCommand extends Command
 
                 foreach ($tasks as $task) {
                     if ($task['assignee_id'] == $this->AcTask->userId && !$task['completed_on']) {
+                        $milestone = null;
+                        if (isset($milestones_sorted[$task['milestone_id']])) {
+                            $milestone = strtoupper($milestones_sorted[$task['milestone_id']]['name']);
+                            $milestone = str_replace(array('/', ' ', ':', '-', '(', ')'), '', $milestone);
+                        }
                         $assigned_tasks[md5($task['permalink'])] = array(
                             'permalink' => $task['permalink'],
                             'task_id' => $task['task_id'],
@@ -107,6 +120,7 @@ class PullCommand extends Command
                             'created_by_id' => $task['created_by_id'],
                             'priority' => isset($task['priority']) ? $task['priority'] : null,
                             'due' => isset($task['due_on']['mysql']) ? $task['due_on']['mysql'] : null,
+                            'milestone' => $milestone ? $milestone : null,
                         );
                     }
                     $task_progress->advance();
@@ -121,6 +135,11 @@ class PullCommand extends Command
 
                 foreach ($subtasks as $subtask) {
                     if ($subtask['assignee_id'] == $this->AcTask->userId && !$subtask['completed_on']) {
+                        $milestone = null;
+                        if (isset($milestones_sorted[$task['milestone_id']])) {
+                            $milestone = strtoupper($milestones_sorted[$task['milestone_id']]['name']);
+                            $milestone = str_replace(array('/', ' ', ':', '-', '(', ')'), '', $milestone);
+                        }
                         $assigned_tasks[md5($subtask['permalink'])] = array(
                             'permalink' => $subtask['permalink'],
                             'task_id' => $subtask['parent_id'],
@@ -134,6 +153,7 @@ class PullCommand extends Command
                             'created_by_id' => $subtask['created_by_id'],
                             'priority' => isset($subtask['priority']) ? $subtask['priority'] : null,
                             'due' => isset($subtask['due_on']) ? $subtask['due_on'] : null,
+                            'milestone' => $milestone ? $milestone : null,
                         );
                     }
                     $subtask_progress->advance();
@@ -197,6 +217,9 @@ class PullCommand extends Command
                 if (!empty($remote_task['label'])) {
                     $tags[] = $remote_task['label'];
                 }
+                if (!empty($remote_task['milestone'])) {
+                    $tags[] = $remote_task['milestone'];
+                }
                 $tw_task->setTags($tags);
                 $output->writeln(sprintf('Adding task "%s"', $tw_task->getDescription()));
                 $response = $taskwarrior->save($tw_task)->getResponse();
@@ -227,10 +250,12 @@ class PullCommand extends Command
                     if (!empty($remote_task['label'])) {
                         $formatted_tags[$remote_task['label']] = $remote_task['label'];
                     }
+                    if (!empty($remote_task['milestone'])) {
+                        $formatted_tags[$remote_task['milestone']] = $remote_task['milestone'];
+                    }
                     $tw_task->setTags(array_keys($formatted_tags));
-                    
                     $response = $taskwarrior->save($tw_task);
-                    // Send notification and write to logs only if task was 
+                    // Send notification and write to logs only if task was
                     // actually modified.
                     if (strpos($response['output'], 'Modified 1 tasks')) {
                         $this->notifySend('Modified task', $tw_task->getDescription());

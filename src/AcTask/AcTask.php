@@ -12,9 +12,7 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Yaml\Parser;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Dumper;
-use Symfony\Component\Process\Process;
 use LibTask\Task\Task;
-use LibTask\Taskwarrior;
 
 /**
  * Provides methods for interacting with the ActiveCollabApi.
@@ -22,7 +20,7 @@ use LibTask\Taskwarrior;
 class AcTask
 {
 
-    const VERSION = '0.1';
+  const VERSION = '0.1';
 
   public $userId;
 
@@ -178,6 +176,7 @@ class AcTask
         $favorites[] = $project;
       }
     }
+
     return $favorites;
   }
 
@@ -222,6 +221,7 @@ class AcTask
   {
     $parse = parse_url($permalink);
     $parts = explode('/', ltrim($parse['path'], '/'));
+
     return $parts[1];
   }
 
@@ -229,6 +229,7 @@ class AcTask
   {
     $parse = parse_url($permalink);
     $parts = explode('/', ltrim($parse['path'], '/'));
+
     return $parts[3];
   }
 

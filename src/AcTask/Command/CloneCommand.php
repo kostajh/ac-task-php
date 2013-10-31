@@ -52,6 +52,9 @@ class CloneCommand extends Command
         $new_task->setId(null);
         $new_task->setUuid(null);
         $new_task->setParent($task->getUuid());
+        $tags = $new_task->getTags();
+        $tags[] = '+next';
+        $new_task->setTags($tags);
         unset($udas['bwissueurl']);
         $new_task->setUdas($udas);
         $dialog = $this->getHelperSet()->get('dialog');
