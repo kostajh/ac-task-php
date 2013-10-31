@@ -52,8 +52,7 @@ class OpenCommand extends Command
         if ($ac_id > 1000) {
             // If AC ID is greater than 1000, assume this is a subtask.
             $url = sprintf('https://ac.designhammer.net/projects/%s/user-tasks', $project);
-        }
-        else {
+        } else {
             $url = sprintf('https://ac.designhammer.net/projects/%s/tasks/%d', $project, $ac_id);
         }
         $process = new Process(sprintf('xdg-open %s', $url));

@@ -6,7 +6,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Process\Process;
 use LibTask\Taskwarrior;
 
 class StartCommand extends Command
@@ -52,6 +51,7 @@ class StartCommand extends Command
         $udas = $task->getUdas();
         if (isset($udas['bwissueurl']) && !empty($udas['bwissueurl'])) {
             $output->writeln('<error>Clone this task before starting it.</error>');
+
             return false;
         }
         foreach ($tasks as $task) {

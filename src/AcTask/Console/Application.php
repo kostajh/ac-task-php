@@ -4,8 +4,6 @@ namespace AcTask\Console;
 
 use Symfony\Component\Console\Application as BaseApplication;
 use AcTask;
-use LibTask\Task\Task;
-use LibTask\Taskwarrior;
 
 /**
 * @author Kosta Harlan <kosta@embros.org>

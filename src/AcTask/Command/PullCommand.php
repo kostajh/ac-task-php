@@ -168,8 +168,7 @@ class PullCommand extends Command
         foreach ($assigned_tasks as $permalink => $task) {
             if (!isset($bw_managed_tasks[$permalink])) {
                 $tasks_to_add[$permalink] = $task;
-            }
-            else {
+            } else {
                 $tasks_to_update[$permalink] = $task;
             }
         }
@@ -198,8 +197,7 @@ class PullCommand extends Command
                   $parts = explode('/', ltrim($parse['path'], '/'));
                   $project = $parts[1];
                   $ac_task_id = (int) $parts[3];
-                }
-                else {
+                } else {
                   $ac_task_id = (int) $remote_task['task_id'];
                 }
                 $tw_task->setUdas(
@@ -263,8 +261,7 @@ class PullCommand extends Command
                         $output->writeln(sprintf('<info>%s</info>', $response['output']));
                         $output->writeln(sprintf('<info>%s</info>', $response['error_output']));
                     }
-                }
-                else {
+                } else {
                     $output->writeln(sprintf('<error>The permalink %s should be linked to a task...</error>', $bw_issue_url));
                 }
             }
@@ -278,8 +275,7 @@ class PullCommand extends Command
                     $response = $taskwarrior->complete($tw_task->getUuid())->getResponse();
                     $output->writeln(sprintf('<info>%s</info>', $response['output']));
                     $this->notifySend('Completed task', $tw_task->getDescription());
-                }
-                else {
+                } else {
                     $output->writeln(sprintf('<error>Could not find task for %s</error>', $bw_issue_url));
                 }
 
@@ -298,11 +294,9 @@ class PullCommand extends Command
     {
         if ($priority == 0) {
             return 'M';
-        }
-        elseif ($priority > 0) {
+        } elseif ($priority > 0) {
             return 'H';
-        }
-        else {
+        } else {
             return 'L';
         }
     }
