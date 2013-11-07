@@ -51,7 +51,7 @@ class PullCommand extends Command
         $verbose = !$input->getOption('silent');
         // Get list of BW managed tasks.
         $taskwarrior = new Taskwarrior();
-        $tasks = $taskwarrior->loadTasks(null, array('status' => 'pending'));
+        $tasks = $taskwarrior->loadTasks(null, array());
         $progress = $this->getHelperSet()->get('progress');
         $progress->setBarCharacter('<comment>=</comment>');
         $output->writeln('<info>Getting list of AC tasks.</info>');
@@ -59,7 +59,7 @@ class PullCommand extends Command
         $bw_managed_tasks = array();
         foreach ($tasks as $key => $task) {
             $udas = $task->getUdas();
-            if (isset($udas['bwissueurl'])) {
+            if (isset($udas['bwissueurl']) && in_array($task->getStatus(), array('pending', 'waiting'))) {
                 $bw_managed_tasks[$udas['bwissueurl']] = $task->getId();
             }
             $progress->advance();
