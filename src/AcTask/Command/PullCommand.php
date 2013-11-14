@@ -202,7 +202,7 @@ class PullCommand extends Command
                 }
                 $tw_task->setUdas(
                     array(
-                        'ac' => $ac_task_id,
+                        'ac' => (int) $ac_task_id,
                         'bwissueurl' => md5($remote_task['permalink']),
                         'logged' => 'false',
                         'permalink' => $remote_task['permalink'],
