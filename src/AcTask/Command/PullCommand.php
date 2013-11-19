@@ -189,8 +189,6 @@ class PullCommand extends Command
             foreach ($tasks_to_add as $remote_task) {
                 $task_id = ($remote_task['type'] == 'subtask') ? $this->AcTask->getAcTaskId($remote_task['parent_url']) : $this->AcTask->getAcTaskId($remote_task['permalink']);
                 $tw_task = new Task(sprintf('(bw)#%d - %s', $remote_task['task_id'], $remote_task['description']));
-                $annotation = new Annotation('Added by Bugwarrior');
-                $tw_task->setAnnotations(array($annotation));
                 // If it's a subtask, "ac" should be Task ID, not Subtask ID.
                 if ($remote_task['type'] == 'subtask') {
                   $parse = parse_url($remote_task['permalink']);
