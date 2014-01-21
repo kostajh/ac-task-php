@@ -82,8 +82,6 @@ class PullCommand extends Command
         $output->writeln(sprintf('<info>Found %d projects</info>.', count($projects)));
         // Get tasks per project
         $output->writeln('<info>Getting tasks for projects...</info>');
-        // Testing.
-        // $projects = array_slice($projects, 3, 6);
         $assigned_tasks = array();
         foreach ($projects as $project) {
             $output->writeln(sprintf('<info>Analyzing tasks and subtasks for %s...</info>', $project['name']));
@@ -169,6 +167,7 @@ class PullCommand extends Command
             if (!isset($bw_managed_tasks[$permalink])) {
                 $tasks_to_add[$permalink] = $task;
             } else {
+                // TODO: Only update tasks that need to be updated.
                 $tasks_to_update[$permalink] = $task;
             }
         }

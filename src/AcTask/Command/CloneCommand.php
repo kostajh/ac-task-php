@@ -8,6 +8,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Command\Command;
 use LibTask\Taskwarrior;
 use LibTask\Task\Task;
+use AcTask\AcTask;
 
 class CloneCommand extends Command
 {
@@ -47,6 +48,8 @@ class CloneCommand extends Command
         }
         $task = $taskwarrior->loadTask($task_id);
         $udas = $task->getUdas();
+        $ac_task = new AcTask();
+        $udas['ac'] = $ac_task->getAcTaskId($udas['permalink']);
         $new_task = clone $task;
         $new_task->setId(null);
         $new_task->setUuid(null);
